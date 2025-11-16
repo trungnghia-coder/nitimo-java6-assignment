@@ -1,6 +1,6 @@
 <template>
   <!-- Newsletter Section -->
-  <div class="newsletter-section text-white py-4 bg-00357a">
+  <div class="newsletter-section text-white py-4 bg-f27127">
     <div class="container row">
         <div class="row align-items-center col-md-9">
             <div class="col-md-3">
@@ -9,7 +9,7 @@
             <div class="col-md-6">
             <div class="d-flex gap-2">
                 <input type="email" class="form-control " placeholder="Nhập email của bạn">
-                <button class="btn px-4 fw-bold text-white bg-004aad">ĐĂNG KÝ</button>
+                <button class="btn px-4 fw-bold text-white bg-F9943B">ĐĂNG KÝ</button>
             </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
   </div>
 
   <!-- Main Footer -->
-  <footer class=" text-white py-5 bg-004aad">
+  <footer class=" text-white py-5 bg-F9943B">
     <div class="container">
       <div class="row mb-5">
         <!-- Company Info -->
@@ -110,7 +110,7 @@
   </footer>
 
   <!-- Copyright -->
-  <div class="bg-darker text-center py-3 text-white small bg-00357a">
+  <div class="bg-darker text-center py-3 text-white small bg-f27127">
     <p class="mb-0">Copyright © 2025 Thời Trang Nitimo. Powered by Haravan</p>
   </div>
 </template>

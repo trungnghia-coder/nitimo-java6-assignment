@@ -46,7 +46,7 @@
               </div>
 
               <!-- Product Info -->
-              <div class="product-info p-3">
+              <div class="p-3">
                 
                 <!-- Rating & Reviews -->
                 <div class="d-flex align-items-center gap-2 mb-2">
@@ -77,7 +77,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class="p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -101,7 +101,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -125,7 +125,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -149,7 +149,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -173,7 +173,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -197,7 +197,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">
@@ -221,7 +221,7 @@
                 <img src="https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg" alt="Product 1" class="w-100 img-fluid">
                 <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
-              <div class="product-info p-3">
+              <div class=" p-3">
                 <div class="d-flex align-items-center gap-2 mb-2">
                   <div class="customer-avatars d-flex">
                     <img src="https://n7media.coolmate.me/uploads/August2025/t-shirt-chay-bo-nu-graphic-sky-4-cam-dao_99.jpg?aio=w-700" alt="avatar" class="avatar">

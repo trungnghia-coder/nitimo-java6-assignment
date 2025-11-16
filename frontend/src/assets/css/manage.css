@@ -1,0 +1,332 @@
+/* --- MANAGE PAGE LAYOUT --- */
+.manage-page {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* --- MAIN CONTENT AREA --- */
+.manage-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* --- MANAGE HEADER --- */
+.manage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.manage-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* --- SECTION STYLING --- */
+.manage-section {
+    animation: fadeInUp 0.5s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+/* --- FORM CONTAINER --- */
+.form-container {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.form-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff6b35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.form-actions .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+/* --- TABLE CONTAINER --- */
+.table-container {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    font-weight: 600;
+    color: #333;
+    padding: 16px;
+    border-bottom: 2px solid #dee2e6;
+    text-align: left;
+}
+
+.table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* --- TABLE BUTTONS --- */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-warning {
+    background-color: #ff6b35;
+    color: white;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #e85a25;
+    box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* --- BADGE STYLING --- */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.bg-success {
+    background-color: #198754;
+    color: white;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.bg-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.bg-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.bg-info {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.bg-dark {
+    background-color: #212529;
+    color: white;
+}
+
+/* --- CARD --- */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #333;
+}
+
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+    .manage-content {
+        margin-left: 240px;
+        padding: 30px;
+    }
+
+    .manage-title {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .manage-page {
+        flex-direction: column;
+    }
+
+    .manage-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .manage-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .manage-title {
+        font-size: 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table th,
+    .table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .manage-content {
+        padding: 16px;
+    }
+
+    .manage-title {
+        font-size: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .btn-sm {
+        padding: 4px 6px;
+    }
+}

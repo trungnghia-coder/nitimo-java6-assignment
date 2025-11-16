@@ -1,5 +1,5 @@
 <template>
-    <div class="top-bar bg-004aad text-white py-2 w-100" style="z-index: 1020; left: 0; right: 0;">
+    <div class="top-bar bg-f27127 text-white py-2 w-100" style="z-index: 1020; left: 0; right: 0;">
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
         <span>Hotline: 0906527626 (8h - 12h, 13h30 - 17h)</span>
         <span>Liên hệ</span>
@@ -11,8 +11,8 @@
         <div class="container-fluid px-4">
             <!-- Logo -->
             <a class="navbar-brand me-5" href="/">
-                <div class="brand-logo" style="font-weight: bold; font-size: 40px; color: #004aad;">
-                NITIMO
+                <div class="brand-logo" style="font-weight: bold; font-size: 40px; color: #f27127;">
+                LAWAN
                 </div>
             </a>
 
@@ -43,19 +43,19 @@
 
             <!-- Right Icons -->
             <div class="ms-4 d-flex align-items-center gap-3">
-                <!-- Search -->
-                <button class="btn btn-link p-0 ">
+                <!-- Account -->
+                <router-link to="/account" class="btn btn-link p-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-circle c-black" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                     </svg>
-                </button>
-                <!-- Account -->
-                <router-link to="/account" class="btn btn-link p-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-search c-black" viewBox="0 0 16 16">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                </svg>
                 </router-link>
+                <!-- Search -->
+                <button class="btn btn-link p-0 ">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-search c-black" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                    </svg>
+                </button>
                 <!-- Shopping Cart -->
                 <div class="position-relative">
                 <button class="btn btn-link p-0" @click="openCart">

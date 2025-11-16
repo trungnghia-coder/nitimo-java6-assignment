@@ -15,53 +15,58 @@
       <div class="cart-slide-header">
         <h3>Giỏ hàng</h3>
         <button class="btn-close" @click="closeCart">
-          <i class="bi bi-x" style="font-size: 24px;"></i>
         </button>
       </div>
 
-      <!-- Status Bar -->
-      <div class="free-shipping-bar p-2 text-center text-success small">
-        Bạn đã được <strong>MIỄN PHÍ VẬN CHUYỂN</strong>
+      <!-- Cart Items -->
+      <div v-if="cartItems.length > 0" class="cart-items-slide">
+        <div v-for="item in cartItems" :key="item.id" class="cart-item">
+          <div class="item-image">
+            <img :src="item.image" :alt="item.name">
+          </div>
+          <div class="item-details">
+            <h5 class="item-name">{{ item.name }}</h5>
+            <p class="item-price">{{ item.price }}</p>
+            <div class="quantity-selector-slide">
+              <button class="qty-btn-slide" @click="decreaseQuantity(item.id)">−</button>
+              <span>{{ item.quantity }}</span>
+              <button class="qty-btn-slide" @click="increaseQuantity(item.id)">+</button>
+            </div>
+          </div>
+          <div class="item-remove">
+            <button class="btn-remove" @click="removeItem(item.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Empty Cart -->
-      <div class="empty-cart-slide text-center py-5">
-        <i class="bi bi-cart-x" style="font-size: 48px; color: #ccc;"></i>
+      <div v-else class="empty-cart-slide text-center py-5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-bag-x" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708"/>
+          <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+        </svg>
         <p class="mt-3 text-muted">Giỏ hàng trống</p>
       </div>
 
       <!-- Footer (Sticky) -->
       <div class="cart-slide-footer">
-        <!-- Summary -->
-        <div class="summary-row d-flex justify-content-between mb-2">
-          <span>Tạm tính:</span>
-          <span>250.000đ</span>
-        </div>
-        <div class="summary-row d-flex justify-content-between mb-2">
-          <span>Vận chuyển:</span>
-          <span class="text-success">Miễn phí</span>
-        </div>
-
-        <!-- Divider -->
-        <div class="border-top my-2"></div>
 
         <!-- Total -->
         <div class="total-row d-flex justify-content-between mb-3">
           <span class="fw-bold">TỔNG:</span>
-          <span class="fw-bold text-danger" style="font-size: 18px;">
-            250.000đ
+          <span class="fw-bold" style="font-size: 18px; color: #F9943B;">
+            {{ totalPrice.toLocaleString('vi-VN') }}đ
           </span>
         </div>
 
         <!-- Buttons -->
-        <button class="btn btn-danger w-100 mb-2" style="padding: 12px; font-weight: bold;" @click="goToCheckout">
+        <button class="btn bg-F9943B w-100 mb-2 text-white" style="padding: 12px; font-weight: bold;" @click="goToCheckout">
           THANH TOÁN
-        </button>
-        <button 
-          class="btn btn-outline-secondary w-100"
-          @click="closeCart"
-        >
-          Tiếp tục mua sắm
         </button>
       </div>
     </div>
@@ -69,6 +74,7 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -81,6 +87,79 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const router = useRouter()
 
+// Sample cart items
+const cartItems = ref([
+  {
+    id: 1,
+    name: 'Áo thun cotton nam',
+    price: '150.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-kieu-nu__1__d89a4e13aa914a1eb48844d9741815e3_master.jpg'
+  },
+  {
+    id: 2,
+    name: 'Quần jean xanh',
+    price: '350.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-phao__4__8c7be53ea3274dec972b1dd3c384d1ee_master.jpg'
+  },
+  {
+    id: 3,
+    name: 'Giày thể thao trắng',
+    price: '450.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
+  },
+  {
+    id: 3,
+    name: 'Giày thể thao trắng',
+    price: '450.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
+  }
+  ,
+  {
+    id: 3,
+    name: 'Giày thể thao trắng',
+    price: '450.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
+  }
+  ,
+  {
+    id: 3,
+    name: 'Giày thể thao trắng',
+    price: '450.000đ',
+    quantity: 1,
+    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
+  }
+])
+
+const totalPrice = computed(() => {
+  return cartItems.value.reduce((total, item) => {
+    const price = parseInt(item.price.replace(/\D/g, '')) * item.quantity
+    return total + price
+  }, 0)
+})
+
+const removeItem = (id) => {
+  cartItems.value = cartItems.value.filter(item => item.id !== id)
+}
+
+const increaseQuantity = (id) => {
+  const item = cartItems.value.find(item => item.id === id)
+  if (item) {
+    item.quantity++
+  }
+}
+
+const decreaseQuantity = (id) => {
+  const item = cartItems.value.find(item => item.id === id)
+  if (item && item.quantity > 1) {
+    item.quantity--
+  }
+}
+
 const closeCart = () => {
   emit('close')
 }
@@ -91,259 +170,3 @@ const goToCheckout = () => {
   emit('close')
 }
 </script>
-
-<style scoped>
-/* Overlay */
-.cart-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1030;
-}
-
-/* Slide Panel */
-.cart-slide-panel {
-  position: fixed;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 420px;
-  background-color: white;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-  z-index: 1040;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-/* Header */
-.cart-slide-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #eee;
-  flex-shrink: 0;
-}
-
-.cart-slide-header h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: #333;
-}
-
-.btn-close:hover {
-  color: #dc3545;
-}
-
-/* Free Shipping Bar */
-.free-shipping-bar {
-  background-color: #f0f8f5;
-  border-bottom: 1px solid #ddd;
-  flex-shrink: 0;
-}
-
-/* Empty Cart */
-.empty-cart-slide {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
-}
-
-/* Cart Items Container */
-.cart-items-slide {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Cart Item */
-.cart-item-slide {
-  display: grid;
-  grid-template-columns: 80px 1fr 80px;
-  gap: 12px;
-  padding: 12px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  align-items: start;
-}
-
-.cart-item-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 4px;
-  background-color: white;
-}
-
-.cart-item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.product-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.product-specs {
-  font-size: 11px;
-}
-
-.product-price {
-  font-size: 14px;
-}
-
-/* Actions */
-.cart-item-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-end;
-}
-
-.quantity-selector-slide {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 4px;
-  background: white;
-}
-
-.qty-btn-slide {
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: #666;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.qty-btn-slide:hover {
-  color: #dc3545;
-}
-
-.qty-display {
-  font-size: 12px;
-  font-weight: 600;
-  min-width: 20px;
-  text-align: center;
-}
-
-.btn-delete-slide {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-  border-radius: 4px;
-  color: #666;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.btn-delete-slide:hover {
-  border-color: #dc3545;
-  color: #dc3545;
-}
-
-/* Subtotal */
-.cart-item-subtotal {
-  grid-column: 1 / -1;
-  font-size: 13px;
-  color: #333;
-}
-
-/* Footer */
-.cart-slide-footer {
-  padding: 1rem;
-  border-top: 1px solid #eee;
-  background-color: white;
-  flex-shrink: 0;
-}
-
-.summary-row {
-  font-size: 13px;
-  color: #666;
-}
-
-.total-row {
-  font-size: 14px;
-  color: #333;
-}
-
-/* Animations */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-enter-from {
-  transform: translateX(100%);
-}
-
-.slide-leave-to {
-  transform: translateX(100%);
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-  .cart-slide-panel {
-    width: 100%;
-  }
-
-  .cart-item-slide {
-    grid-template-columns: 60px 1fr 60px;
-  }
-
-  .cart-item-img {
-    width: 60px;
-    height: 60px;
-  }
-
-  .product-name {
-    font-size: 12px;
-  }
-}
-</style>

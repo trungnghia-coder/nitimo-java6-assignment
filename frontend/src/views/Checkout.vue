@@ -1,7 +1,7 @@
 <template>
   <div class="checkout-container py-5" style="background-color: #f9f9f9; min-height: 100vh;">
     <div class="container-fluid px-4">
-      <h1 class="mb-5 fw-bold" style="font-size: 32px; color: #333;">Thanh Toán</h1>
+      <h1 class="mb-3 fw-bold" style="font-size: 32px; color: #333;">Thanh Toán</h1>
 
       <div class="row g-5">
         
@@ -103,13 +103,6 @@
           <div class="card" style="border: 1px solid #ddd; border-radius: 8px; position: sticky; top: 100px;">
             <div class="card-body p-4">
               <h4 class="mb-4 fw-bold" style="color: #333;">Tóm Tắt Đơn Hàng</h4>
-              
-              <div class="mb-4" style="max-height: 300px; overflow-y: auto;">
-                <div v-for="(it, i) in [1,2,3]" :key="i" class="d-flex justify-content-between small mb-2 pb-2" :class="{ 'border-bottom': i < 2 }">
-                  <span>Sản phẩm x{{ it }}</span>
-                  <span style="color: #dc3545; font-weight: 600;">250.000₫</span>
-                </div>
-              </div>
 
               <div class="mb-3 pb-3" style="border-bottom: 1px solid #eee;">
                 <div class="d-flex justify-content-between mb-2 small">
@@ -125,23 +118,16 @@
               <!-- Total -->
               <div class="d-flex justify-content-between mb-4">
                 <span class="fw-bold" style="font-size: 16px;">TỔNG CỘNG:</span>
-                <span class="fw-bold text-danger" style="font-size: 20px;">250.000₫</span>
+                <span class="fw-bold c-f27127" style="font-size: 20px;">250.000₫</span>
               </div>
 
               <!-- Buttons -->
-              <button class="btn w-100 mb-2 fw-bold" style="background-color: #dc3545; color: white; padding: 12px; border-radius: 6px; border: none;">
+              <button class="btn w-100 mb-2 fw-bold" style="background-color: #F9943B; color: white; padding: 12px; border-radius: 6px; border: none;">
                 THANH TOÁN
               </button>
               <button class="btn w-100" style="border: 1px solid #ddd; color: #666; padding: 12px; border-radius: 6px;">
                 Tiếp tục mua sắm
               </button>
-
-              <!-- Shipping info -->
-              <div class="mt-4 small text-muted" style="line-height: 1.8;">
-                <div><i class="bi bi-check-circle" style="color: #28a745;"></i> Miễn phí vận chuyển</div>
-                <div><i class="bi bi-check-circle" style="color: #28a745;"></i> Hàng chính hãng 100%</div>
-                <div><i class="bi bi-check-circle" style="color: #28a745;"></i> Đổi trả trong 30 ngày</div>
-              </div>
             </div>
           </div>
         </div>

@@ -3,22 +3,10 @@
     <div class="container">
       <div class="row g-5">
         <!-- Product Images Gallery -->
-        <div class="col-lg-6">
-          <div class="product-gallery">
-            <!-- Main Image -->
-            <div class="main-image-wrapper">
-              <img 
-                :src="mainImage" 
-                :alt="product.name" 
-                class="main-image"
-              >
-              <div class="discount-badge-large" v-if="product.discount">
-                {{ product.discount }}%
-              </div>
-            </div>
-
-            <!-- Thumbnail Images -->
-            <div class="thumbnail-gallery mt-3 d-flex gap-2">
+        <div class="col-lg-5">
+          <div class="product-gallery d-flex gap-3">
+            <!-- Thumbnail Images (Left Side) -->
+            <div class="thumbnail-gallery-vertical d-flex flex-column gap-2">
               <img 
                 v-for="(image, index) in product.images" 
                 :key="index"
@@ -28,6 +16,18 @@
                 :class="{ active: mainImage === image }"
                 @click="mainImage = image"
               >
+            </div>
+
+            <!-- Main Image (Right Side) -->
+            <div class="main-image-wrapper flex-grow-1">
+              <img 
+                :src="mainImage" 
+                :alt="product.name" 
+                class="main-image"
+              >
+              <div class="discount-badge-large" v-if="product.discount">
+                {{ product.discount }}%
+              </div>
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@
             </div>
 
             <!-- Product Name -->
-            <h1 class="product-name mb-3">{{ product.name }}</h1>
+            <h1 class="product-name">{{ product.name }}</h1>
 
             <!-- Price Section -->
             <div class="price-section bg-light p-3 rounded mb-4">
@@ -52,20 +52,8 @@
                   {{ formatPrice(product.originalPrice) }}đ
                 </span>
               </div>
-              <div class="discount-info text-danger">
+              <div class="discount-info">
                 <strong>Tiết kiệm: {{ formatPrice(product.originalPrice - product.currentPrice) }}đ</strong>
-              </div>
-            </div>
-
-            <!-- Product Status -->
-            <div class="status-section mb-4 p-3 bg-light rounded">
-              <div class="d-flex justify-content-between mb-2">
-                <span>Tình trạng:</span>
-                <span class="fw-bold text-success">Còn hàng ({{ product.stock }} sản phẩm)</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span>Lượt xem:</span>
-                <span class="fw-bold">{{ product.views }}</span>
               </div>
             </div>
 
@@ -106,7 +94,7 @@
             </div>
 
             <!-- Quantity Selection -->
-            <div class="quantity-section mb-4">
+            <div class="quantity-section">
               <label class="form-label fw-bold">Số lượng:</label>
               <div class="quantity-selector d-flex align-items-center gap-2">
                 <button 
@@ -128,50 +116,18 @@
                 >
                   +
                 </button>
-                <span class="text-muted ms-3">Còn lại: {{ product.stock }} sản phẩm</span>
+                <span class="ms-3">Còn lại: {{ product.stock }} sản phẩm</span>
               </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="action-buttons d-flex gap-3 mb-4">
-              <button class="btn btn-danger btn-add-to-cart flex-grow-1" @click="addToCart">
-                <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+              <button class="btn btn-add-to-cart flex-grow-1" @click="addToCart">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                  <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                </svg>
+                Thêm vào giỏ
               </button>
-              <button class="btn btn-outline-danger btn-favorite">
-                <i class="bi bi-heart"></i> Yêu thích
-              </button>
-            </div>
-
-            <!-- Delivery Info -->
-            <div class="delivery-info bg-light p-3 rounded mb-4">
-              <div class="delivery-row d-flex justify-content-between py-2 border-bottom">
-                <span><i class="bi bi-truck"></i> Miễn phí vận chuyển</span>
-                <span class="text-muted">Đơn từ 200.000đ</span>
-              </div>
-              <div class="delivery-row d-flex justify-content-between py-2 border-bottom">
-                <span><i class="bi bi-shield-check"></i> Chính hãng</span>
-                <span class="text-muted">100% chính hãng</span>
-              </div>
-              <div class="delivery-row d-flex justify-content-between py-2">
-                <span><i class="bi bi-arrow-counterclockwise"></i> Đổi/Trả</span>
-                <span class="text-muted">Trong 30 ngày</span>
-              </div>
-            </div>
-
-            <!-- Shop Info -->
-            <div class="shop-info bg-light p-3 rounded">
-              <div class="d-flex align-items-center gap-3">
-                <div class="shop-avatar">
-                  <img src="https://via.placeholder.com/50" alt="Shop" class="img-fluid rounded-circle">
-                </div>
-                <div class="shop-details flex-grow-1">
-                  <h6 class="mb-1">{{ product.shopName }}</h6>
-                  <small class="text-muted">{{ product.shopFollowers }} người theo dõi</small>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm">
-                  <i class="bi bi-plus"></i> Theo dõi
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -182,30 +138,6 @@
         <div class="col-12">
           <div class="description-section">
             <h3 class="section-title mb-4 pb-3 border-bottom">Chi tiết sản phẩm</h3>
-            
-            <!-- Description Tabs -->
-            <div class="nav nav-tabs mb-4" role="tablist">
-              <button 
-                class="nav-link active"
-                id="description-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#description"
-                type="button"
-                role="tab"
-              >
-                Mô tả sản phẩm
-              </button>
-              <button 
-                class="nav-link"
-                id="specs-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#specs"
-                type="button"
-                role="tab"
-              >
-                Thông số kỹ thuật
-              </button>
-            </div>
 
             <!-- Tab Content -->
             <div class="tab-content">
@@ -217,29 +149,7 @@
               >
                 <div class="description-content">
                   <p>{{ product.description }}</p>
-                  <img 
-                    v-if="product.descriptionImage"
-                    :src="product.descriptionImage"
-                    alt="Product description"
-                    class="img-fluid mt-3"
-                  >
                 </div>
-              </div>
-
-              <!-- Specs Tab -->
-              <div 
-                class="tab-pane fade"
-                id="specs"
-                role="tabpanel"
-              >
-                <table class="table table-borderless">
-                  <tbody>
-                    <tr v-for="(value, key) in product.specifications" :key="key" class="spec-row">
-                      <td class="spec-label fw-bold" style="width: 30%">{{ key }}</td>
-                      <td class="spec-value">{{ value }}</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
@@ -254,7 +164,6 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const productId = route.params.id
 
 // Product Data
 const product = ref({
@@ -262,15 +171,14 @@ const product = ref({
   name: 'Áo khoác lông vũ nữ dáng lộ siêu nhẹ',
   images: [
     'https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01085_2_05c9b02871394e849cbbb413fcfeb97b_grande.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01085_3_05c9b02871394e849cbbb413fcfeb97b_grande.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01085_4_05c9b02871394e849cbbb413fcfeb97b_grande.jpg',
+    'https://cdn.hstatic.net/products/200000503583/cdn01075_e3f46d3081f7468ea00d4a758d87e974_master.jpg',
+    'https://cdn.hstatic.net/products/200000503583/cdn01111_a586823a2f244d2d99fe7c6b4705e44d_compact.jpg',
+    'https://cdn.hstatic.net/products/200000503583/cdn01156_06c8c7e5f7714322903e61f6a21a0f4a_master.jpg',
   ],
   currentPrice: 795000,
   originalPrice: 1250000,
   discount: 55,
   stock: 150,
-  views: '2.021 lượt xem',
   sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
   colors: [
     { name: 'Đỏ Bordo', code: '#8B1538' },
@@ -286,18 +194,6 @@ const product = ref({
   - Khóa kéo êm
   - Túi tay tiện dụng
   - Thiết kế thời trang, phù hợp với nhiều phong cách`,
-  descriptionImage: 'https://via.placeholder.com/800x400',
-  specifications: {
-    'Chất liệu': 'Lông vũ 100%',
-    'Độ dày': 'Nhẹ (300g)',
-    'Kích cỡ': 'XS - XXL',
-    'Màu sắc': 'Đỏ Bordo, Đen, Xám',
-    'Bảo quản': 'Giặt tay ở 30°C',
-    'Xuất xứ': 'Việt Nam',
-    'Năm phát hành': '2024',
-  },
-  shopName: 'Coolmate Official Store',
-  shopFollowers: '150K',
 })
 
 // State
@@ -323,386 +219,3 @@ const addToCart = () => {
   alert(`Đã thêm ${quantity.value} sản phẩm vào giỏ!`)
 }
 </script>
-
-<style scoped>
-.product-detail-container {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
-
-/* Gallery Section */
-.product-gallery {
-  position: sticky;
-  top: 100px;
-}
-
-.main-image-wrapper {
-  position: relative;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.main-image {
-  width: 100%;
-  height: 600px;
-  object-fit: cover;
-  display: block;
-}
-
-.discount-badge-large {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: black;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.thumbnail-gallery {
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-
-.thumbnail-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.thumbnail-image:hover {
-  border-color: #dc3545;
-}
-
-.thumbnail-image.active {
-  border-color: #dc3545;
-  box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
-}
-
-/* Product Info Section */
-.product-info {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-}
-
-.rating-section {
-  font-size: 14px;
-}
-
-.product-name {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  line-height: 1.4;
-}
-
-/* Price Section */
-.price-section {
-  background-color: #fff5f5 !important;
-}
-
-.price-current {
-  font-size: 32px;
-  color: #dc3545;
-}
-
-.price-original {
-  font-size: 16px;
-}
-
-.discount-info {
-  font-size: 14px;
-}
-
-/* Status Section */
-.status-section {
-  font-size: 14px;
-}
-
-/* Size Selection */
-.size-section {
-  margin-bottom: 1.5rem;
-}
-
-.size-options {
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.size-btn {
-  padding: 8px 16px;
-  border: 2px solid #ddd;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.size-btn:hover {
-  border-color: #dc3545;
-  color: #dc3545;
-}
-
-.size-btn.active {
-  border-color: #dc3545;
-  background: #dc3545;
-  color: white;
-}
-
-/* Color Selection */
-.color-section {
-  margin-bottom: 1.5rem;
-}
-
-.color-options {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.color-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.color-option:hover {
-  border-color: #dc3545;
-}
-
-.color-option.active {
-  border-color: #dc3545;
-  background: #fff5f5;
-}
-
-.color-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #ddd;
-}
-
-.color-name {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Quantity Selection */
-.quantity-section {
-  margin-bottom: 1.5rem;
-}
-
-.quantity-selector {
-  max-width: 200px;
-}
-
-.qty-btn {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-}
-
-.qty-btn:hover {
-  border-color: #dc3545;
-  color: #dc3545;
-}
-
-.qty-input {
-  width: 60px;
-  height: 40px;
-  text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.qty-input:focus {
-  border-color: #dc3545;
-  outline: none;
-}
-
-/* Action Buttons */
-.btn-add-to-cart {
-  padding: 12px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 6px;
-  transition: all 0.3s;
-}
-
-.btn-add-to-cart:hover {
-  background: #bd2130;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-.btn-favorite {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 6px;
-}
-
-/* Delivery Info */
-.delivery-info {
-  background-color: #f8f9fa !important;
-}
-
-.delivery-row {
-  font-size: 14px;
-  color: #333;
-}
-
-.delivery-row i {
-  color: #dc3545;
-  margin-right: 8px;
-}
-
-/* Shop Info */
-.shop-info {
-  background-color: #f8f9fa !important;
-}
-
-.shop-avatar img {
-  width: 50px;
-  height: 50px;
-}
-
-/* Description Section */
-.description-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-}
-
-.nav-tabs {
-  border-bottom: 2px solid #ddd;
-}
-
-.nav-link {
-  color: #666;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-bottom: 3px solid transparent;
-  transition: all 0.3s;
-}
-
-.nav-link:hover {
-  color: #dc3545;
-  border-bottom-color: #dc3545;
-}
-
-.nav-link.active {
-  color: #dc3545;
-  border-bottom-color: #dc3545;
-  background: none;
-}
-
-.description-content {
-  font-size: 14px;
-  line-height: 1.8;
-  color: #555;
-}
-
-.spec-row {
-  border-bottom: 1px solid #eee;
-}
-
-.spec-row:last-child {
-  border-bottom: none;
-}
-
-.spec-label {
-  color: #333;
-  padding: 12px 0;
-}
-
-.spec-value {
-  color: #666;
-  padding: 12px 0;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .main-image {
-    height: 400px;
-  }
-
-  .product-info {
-    padding: 1.5rem;
-  }
-
-  .price-current {
-    font-size: 24px;
-  }
-
-  .product-name {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 576px) {
-  .main-image {
-    height: 300px;
-  }
-
-  .product-gallery {
-    position: static;
-  }
-
-  .product-info {
-    padding: 1rem;
-  }
-
-  .price-current {
-    font-size: 20px;
-  }
-
-  .product-name {
-    font-size: 16px;
-  }
-
-  .thumbnail-image {
-    width: 60px;
-    height: 60px;
-  }
-
-  .qty-selector {
-    max-width: 160px;
-  }
-
-  .btn-add-to-cart {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-}
-</style>
