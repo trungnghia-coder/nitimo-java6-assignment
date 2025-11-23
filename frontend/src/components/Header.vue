@@ -44,12 +44,12 @@
             <!-- Right Icons -->
             <div class="ms-4 d-flex align-items-center gap-3">
                 <!-- Account -->
-                <router-link to="/account" class="btn btn-link p-0">
+                <button @click="goToUserPage" class="btn btn-link p-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-circle c-black" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                     </svg>
-                </router-link>
+                </button>
                 <!-- Search -->
                 <button class="btn btn-link p-0 ">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-search c-black" viewBox="0 0 16 16">
@@ -71,11 +71,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { isUserLoggedIn } from '../composables/authHandle'
+const router = useRouter()
 
 const emit = defineEmits(['open-cart'])
 
 const openCart = () => {
   emit('open-cart')
+}
+
+const goToUserPage = async () => {
+  const loggedIn = await isUserLoggedIn()
+  
+  if (loggedIn) {
+    router.push('/account')
+  } else {
+    router.push('/auth')
+  }
 }
 </script>

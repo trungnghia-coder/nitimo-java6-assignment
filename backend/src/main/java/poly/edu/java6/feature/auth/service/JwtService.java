@@ -41,4 +41,26 @@ public class JwtService {
     public Long extractUserId(String token) {
         return extractClaims(token).get("userId", Long.class);
     }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Token validation error: " + ex.getMessage());
+        }
+        return false;
+    }
+
+    public String getUsernameFromJWT(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 }

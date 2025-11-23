@@ -51,13 +51,23 @@ const router = createRouter({
 
 export default router;
 
-const isAuthenticated = () => {
-    return localStorage.getItem('jwt_token') !== null;
+const isAuthenticated = async () => {
+    try {
+        const response = await fetch('http://localhost:8080/api/auth/check-auth-status', {
+            credentials: 'include'
+        })
+        const data = await response.json()
+        return data.isAuthenticated === true
+    } catch (err) {
+        console.error('Error checking auth:', err)
+        return false
+    }
 };
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     if (to.meta.requiresAuth) {
-        if (!isAuthenticated()) {
+        const authenticated = await isAuthenticated()
+        if (!authenticated) {
             next('/auth');
         } else {
             next();

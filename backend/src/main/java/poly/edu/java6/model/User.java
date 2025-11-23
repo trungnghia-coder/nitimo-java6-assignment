@@ -49,6 +49,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    enum Status { ACTIVE, INACTIVE }
-    enum Role { USER, ADMIN }
+    public enum Status { ACTIVE, INACTIVE }
+    public enum Role { USER, ADMIN }
 }
