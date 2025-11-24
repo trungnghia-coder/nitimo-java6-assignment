@@ -61,8 +61,13 @@
                 </div>
                 <div class="form-group full-width">
                   <label class="form-label">Address</label>
-                  <input type="text" class="form-control" placeholder="Your address" />
+                  <div class="d-flex gap-2">
+                    <input type="text" class="form-control flex-grow-1" placeholder="Your address" />
+                    <button type="button" class="btn btn-secondary" @click="activeTab = 'location'">Change Location</button>
+                  </div>
                 </div>
+
+                
                 <button type="button" class="btn btn-orange w-100 mt-3 fw-bold">Update</button>
               </form>
             </div>
@@ -103,6 +108,25 @@
             </div>
           </div>
         </main>
+        
+        <div v-if="activeTab === 'location'" class="location-picker-fullscreen">
+          <button type="button" class="btn-back-to-account" @click="activeTab = 'info'">
+            ← Back to Account
+          </button>
+          <div class="location-picker-fullscreen-container">
+            <h2 class="location-picker-fullscreen-title">Select Your Location</h2>
+            <p class="location-picker-fullscreen-subtitle">Choose your province, district, and ward</p>
+            
+            <div class="location-picker-wrapper">
+              <LocationPiker />
+            </div>
+            
+            <div class="location-picker-fullscreen-actions">
+              <button type="button" class="btn btn-secondary-location" @click="activeTab = 'info'">Cancel</button>
+              <button type="button" class="btn btn-primary-location" @click="confirmLocationAndBack">Confirm Location</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -113,6 +137,12 @@ import '../assets/css/accountManage.css'
 import { useAuthHandle } from '../composables/authHandle'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import LocationPiker from '../components/LocationPiker.vue'
+import {
+  selectedProvince,
+  selectedDistrict,
+  selectedWard,
+} from '../composables/locationPiker'
 
 const activeTab = ref('info')
 const router = useRouter()
@@ -129,6 +159,15 @@ const handlePasswordChange = async () => {
   
 const handleLogout = async () => { 
   await logout()
+}
+
+const confirmLocationAndBack = () => {
+  // Construct location string from selected values
+  const location = [selectedWard.value?.name, selectedDistrict.value?.name, selectedProvince.value?.name]
+    .filter(Boolean)
+    .join(', ')
+  console.log('Selected location:', location)
+  activeTab.value = 'info'
 }
 
 function goToManagement() {
