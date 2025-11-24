@@ -85,20 +85,20 @@
             <div class="card-body">
               <h2 class="card-title h5 mb-3 pb-2 border-bottom">Change Password</h2>
               
-              <form class="form security-form">
+              <form class="form security-form" @submit.prevent="handlePasswordChange">
                 <div class="form-group">
                   <label class="form-label">Current Password</label>
-                  <input type="password" class="form-control" placeholder="Current Password" />
+                  <input v-model="oldPassword" type="password" class="form-control" placeholder="Current Password" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">New Password</label>
-                  <input type="password" class="form-control" placeholder="New Password"/>
+                  <input v-model="newPassword"  type="password" class="form-control" placeholder="New Password"/>
                 </div>
                 <div class="form-group full-width">
                   <label class="form-label">Confirm New Password</label>
-                  <input type="password" class="form-control" placeholder="Confirm New Password"/>
+                  <input v-model="confirmPassword" type="password" class="form-control" placeholder="Confirm New Password"/>
                 </div>
-                <button type="button" class="btn btn-orange w-100 mt-3 fw-bold">Change Password</button>
+                <button type="submit" class="btn btn-orange w-100 mt-3 fw-bold">Change Password</button>
               </form>
             </div>
           </div>
@@ -116,8 +116,17 @@ import { useRouter } from 'vue-router'
 
 const activeTab = ref('info')
 const router = useRouter()
+
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+
+const { logout, passwordChange } = useAuthHandle()
+
+const handlePasswordChange = async () => {
+  await passwordChange(oldPassword.value, newPassword.value, confirmPassword.value)
+}
   
-const { logout } = useAuthHandle()
 const handleLogout = async () => { 
   await logout()
 }

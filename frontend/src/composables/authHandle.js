@@ -20,6 +20,11 @@ export function useAuthHandle() {
     const rememberMe = ref(false)
     const errorMessage = ref('')
 
+    const oldPassword = ref('')
+    const newPassword = ref('')
+    const confirmPassword = ref('')
+
+
     const login = async () => {
         try {
             const res = await api.post('/api/auth/login', {
@@ -66,6 +71,32 @@ export function useAuthHandle() {
         }
     }
 
+    const passwordChange = async (oldPass, newPass, confirmPass) => {
+        try {
+            if (newPass !== confirmPass) {
+                errorMessage.value = 'Passwords do not match'
+                return false
+            }
+
+            const res = await api.post('/api/auth/change-password', {
+                oldPassword: oldPass,
+                newPassword: newPass,
+                confirmPassword: confirmPass
+            })
+            if (res.data.success) {
+                alert('Password changed successfully!')
+                return true
+            } else {
+                errorMessage.value = res.data.message
+                return false
+            }
+        } catch (err) {
+            errorMessage.value = 'Server error, please try again later'
+            console.error(err)
+            return false
+        }
+    }
+
     const resetPassword = async (email) => {
         try {
             const res = await api.post('/api/forgot-password', {
@@ -89,7 +120,7 @@ export function useAuthHandle() {
         try {
             await api.post('/api/auth/logout')
             alert('Logged out successfully!')
-            router.push('/')
+            router.push('/auth')
         } catch (err) {
             console.error('Logout error:', err)
             router.push('/')
@@ -101,9 +132,13 @@ export function useAuthHandle() {
         password,
         rememberMe,
         errorMessage,
+        oldPassword,
+        newPassword,
+        confirmPassword,
         login,
         signup,
         resetPassword,
+        passwordChange,
         logout
     }
 }

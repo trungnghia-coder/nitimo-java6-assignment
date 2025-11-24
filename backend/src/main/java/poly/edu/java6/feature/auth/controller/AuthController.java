@@ -15,10 +15,14 @@ import poly.edu.java6.feature.auth.dto.login.LoginResponse;
 import poly.edu.java6.feature.auth.dto.login.LoginRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupResponse;
+import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
+import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.JwtService;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.model.User;
+
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -92,5 +96,29 @@ public class AuthController {
         jwtCookie.setPath("/");
         response.addCookie(jwtCookie);
         return ResponseEntity.ok().body(Map.of("success", true, "message", "Logged out successfully"));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<PasswordChangeResponce> changeMyPassword(
+            Principal principal,
+            @RequestBody PasswordChangeRequest password) {
+        String identifier = principal.getName();
+
+        try {
+            if (!password.getNewPassword().equals(password.getConfirmPassword())) {
+                return ResponseEntity.badRequest()
+                        .body(new PasswordChangeResponce(false, "New password and confirm password do not match"));
+            }
+
+            if (identifier != null && identifier.contains("@")) {
+                authService.changePasswordByEmail(identifier, password);
+            } else {
+                authService.changePasswordByPhone(identifier, password);
+            }
+            return ResponseEntity.ok(new PasswordChangeResponce(true, "Password changed successfully"));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new PasswordChangeResponce(false, e.getMessage()));
+        }
     }
 }
