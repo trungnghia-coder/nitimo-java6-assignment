@@ -34,7 +34,7 @@
               Management Page
             </li>
 
-            <li class="sidebar-item" @click="logout">
+            <li class="sidebar-item" @click="handleLogout">
               Logout
             </li>
           </ul>
@@ -110,17 +110,16 @@
 
 <script setup>
 import '../assets/css/accountManage.css'
+import { useAuthHandle } from '../composables/authHandle'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const activeTab = ref('info')
 const router = useRouter()
-
-function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-  alert('Logged out successfully!')
-  window.location.href = '/'
+  
+const { logout } = useAuthHandle()
+const handleLogout = async () => { 
+  await logout()
 }
 
 function goToManagement() {

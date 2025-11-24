@@ -5,7 +5,7 @@
         v-for="item in menuItems" 
         :key="item.id"
         :class="['menu-item', activeMenu === item.id ? 'active' : '']"
-        @click="$emit('select', item.id)"
+        @click="handleMenuClick(item.id)"
       >
         <i :class="item.icon" class="menu-icon"></i>
         <span class="menu-label">{{ item.label }}</span>
@@ -16,6 +16,26 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
+import { useAuthHandle } from '../composables/authHandle'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const { logout } = useAuthHandle()
+const emit = defineEmits(['select'])
+
+const handleMenuClick = async (itemId) => {
+  if (itemId === 'logout') {
+    await handleLogout()
+  } else if (itemId === 'leave') {
+    router.push('/')
+  } else {
+    emit('select', itemId)
+  }
+}
+
+const handleLogout = async () => { 
+  await logout()
+}
 
 defineProps({
   activeMenu: {
@@ -23,8 +43,6 @@ defineProps({
     default: 'products'
   }
 })
-
-defineEmits(['select'])
 
 const menuItems = [
   {

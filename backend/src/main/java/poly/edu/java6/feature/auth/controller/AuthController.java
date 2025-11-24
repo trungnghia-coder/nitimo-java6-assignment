@@ -84,4 +84,13 @@ public class AuthController {
     public ResponseEntity<?> getUserProfile() {
         return ResponseEntity.ok().body("userProfileData");
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie jwtCookie = new Cookie("jwt-token", null);
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setPath("/");
+        response.addCookie(jwtCookie);
+        return ResponseEntity.ok().body(Map.of("success", true, "message", "Logged out successfully"));
+    }
 }

@@ -85,6 +85,17 @@ export function useAuthHandle() {
         }
     }
 
+    const logout = async () => {
+        try {
+            await api.post('/api/auth/logout')
+            alert('Logged out successfully!')
+            router.push('/')
+        } catch (err) {
+            console.error('Logout error:', err)
+            router.push('/')
+        }
+    }
+
     return {
         username,
         password,
@@ -92,6 +103,7 @@ export function useAuthHandle() {
         errorMessage,
         login,
         signup,
-        resetPassword
+        resetPassword,
+        logout
     }
 }
