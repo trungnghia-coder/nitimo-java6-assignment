@@ -19,6 +19,7 @@ const wardSearch = ref('')
 const wardListShown = ref(false)
 const filteredWards = ref([])
 const selectedWard = ref(null)
+const streetAddress = ref('')
 
 /*
 * The Lunr engine consider each keyword optional, but in the context of
@@ -193,6 +194,7 @@ export {
     wardListShown,
     filteredWards,
     selectedWard,
+    streetAddress,
     highlightName,
     searchDistrict,
     searchDistrictOnTyping,

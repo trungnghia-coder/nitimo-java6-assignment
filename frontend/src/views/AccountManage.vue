@@ -148,6 +148,7 @@ import {
   selectedProvince,
   selectedDistrict,
   selectedWard,
+  streetAddress,
 } from '../composables/locationPiker'
 
 const activeTab = ref('info')
@@ -168,11 +169,18 @@ const handleLogout = async () => {
 }
 
 const confirmLocationAndBack = () => {
-  // Construct location string from selected values
-  const location = [selectedWard.value?.name, selectedDistrict.value?.name, selectedProvince.value?.name]
-    .filter(Boolean)
-    .join(', ')
+  const locationParts = [
+    streetAddress.value,
+    selectedWard.value?.name, 
+    selectedDistrict.value?.name, 
+    selectedProvince.value?.name
+  ].filter(Boolean)
+  
+  const location = locationParts.join(', ')
   console.log('Selected location:', location)
+  
+  profile.value.address = location
+  
   activeTab.value = 'info'
 }
 

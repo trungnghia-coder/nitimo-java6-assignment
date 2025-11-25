@@ -226,7 +226,7 @@
 </style>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import {
   provinceSearch,
   provinceListShown,
@@ -240,6 +240,7 @@ import {
   wardListShown,
   filteredWards,
   selectedWard,
+  streetAddress,
   highlightName,
   searchDistrictOnTyping,
   startSearchingProvince,
@@ -252,8 +253,6 @@ import {
   hideDistrictList,
   hideWardList
 } from '../composables/locationPiker'
-
-const streetAddress = ref('')
 
 const selectedLocation = computed(() => {
   const parts = [
