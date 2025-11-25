@@ -46,7 +46,9 @@
             <div class="card-body">
               <h2 class="card-title h5 mb-3 pb-2 border-bottom">Account Information</h2>
               
-              <form class="form info-form">
+              <div v-if="errorMessage" class="alert alert-danger mb-3">{{ errorMessage }}</div>
+              
+              <form class="form info-form" @submit.prevent="handleInformationUpdate">
                 <div class="form-group full-width">
                   <label class="form-label">Full Name</label>
                   <input v-model="profile.fullName" type="text" class="form-control" placeholder="Your full name"/>
@@ -68,7 +70,7 @@
                 </div>
 
                 
-                <button type="button" class="btn btn-orange w-100 mt-3 fw-bold">Update</button>
+                <button type="submit" class="btn btn-orange w-100 mt-3 fw-bold">Update</button>
               </form>
             </div>
           </div>
@@ -89,6 +91,8 @@
           <div class="card border" v-show="activeTab === 'security'">
             <div class="card-body">
               <h2 class="card-title h5 mb-3 pb-2 border-bottom">Change Password</h2>
+              
+              <div v-if="errorMessage" class="alert alert-danger mb-3">{{ errorMessage }}</div>
               
               <form class="form security-form" @submit.prevent="handlePasswordChange">
                 <div class="form-group">
@@ -158,10 +162,22 @@ const oldPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 
-const { logout, passwordChangem, fetchProfile, profile } = useAuthHandle()
+const { logout, passwordChange, fetchProfile, profile, informationUpdate, errorMessage } = useAuthHandle()
 
 const handlePasswordChange = async () => {
-  await passwordChange(oldPassword.value, newPassword.value, confirmPassword.value)
+  const success = await passwordChange(oldPassword.value, newPassword.value, confirmPassword.value)
+  if (success) {
+    oldPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+  }
+}
+
+const handleInformationUpdate = async () => {
+  const success = await informationUpdate(profile.value.fullName, profile.value.email, profile.value.phone, profile.value.address)
+  if (success) {
+    // Profile updated successfully
+  }
 }
   
 const handleLogout = async () => { 

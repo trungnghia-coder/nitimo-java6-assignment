@@ -19,6 +19,7 @@ export function useAuthHandle() {
     const password = ref('')
     const rememberMe = ref(false)
     const errorMessage = ref('')
+    const successMessage = ref('')
 
     const oldPassword = ref('')
     const newPassword = ref('')
@@ -58,7 +59,8 @@ export function useAuthHandle() {
                 confirmPassword
             })
             if (res.data.success) {
-                alert('Account created successfully!')
+                successMessage.value = 'Account created successfully!'
+                setTimeout(() => { successMessage.value = '' }, 3000)
                 return true
             } else {
                 errorMessage.value = res.data.message
@@ -84,7 +86,8 @@ export function useAuthHandle() {
                 confirmPassword: confirmPass
             })
             if (res.data.success) {
-                alert('Password changed successfully!')
+                successMessage.value = 'Password changed successfully!'
+                setTimeout(() => { successMessage.value = '' }, 3000)
                 return true
             } else {
                 errorMessage.value = res.data.message
@@ -103,7 +106,8 @@ export function useAuthHandle() {
                 email
             })
             if (res.data.success) {
-                alert('Reset link sent to your email!')
+                successMessage.value = 'Reset link sent to your email!'
+                setTimeout(() => { successMessage.value = '' }, 3000)
                 return true
             } else {
                 errorMessage.value = res.data.message
@@ -119,7 +123,8 @@ export function useAuthHandle() {
     const logout = async () => {
         try {
             await api.post('/api/auth/logout')
-            alert('Logged out successfully!')
+            successMessage.value = 'Logged out successfully!'
+            setTimeout(() => { successMessage.value = '' }, 3000)
             router.push('/auth')
         } catch (err) {
             console.error('Logout error:', err)
@@ -145,17 +150,13 @@ export function useAuthHandle() {
                 cache: 'no-store'
             })
 
-            console.log('Response status:', response.status)
-            console.log('Response headers:', response.headers)
-
-            const text = await response.text()  // Lấy raw text trước
-            console.log('Response body:', text)
+            const text = await response.text()
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch profile: ${response.status}`)
             }
 
-            const data = JSON.parse(text)  // Parse thủ công
+            const data = JSON.parse(text)
             profile.value = {
                 fullName: data.fullName || '',
                 email: data.email || '',
@@ -168,11 +169,57 @@ export function useAuthHandle() {
         }
     }
 
+    const informationUpdate = async (fullName, email, phone, address) => {
+        try {
+            // Kiểm tra dữ liệu trống
+            if (!fullName || !email || !phone || !address) {
+                errorMessage.value = 'Please fill in all fields'
+                return false
+            }
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (!emailRegex.test(email)) {
+                errorMessage.value = 'Invalid email address'
+                return false
+            }
+
+            // Validate phone (số điện thoại Việt Nam)
+            const phoneRegex = /^(0\d{9,10})$/
+            if (!phoneRegex.test(phone)) {
+                errorMessage.value = 'Invalid phone number'
+                return false
+            }
+
+            const res = await api.put('/api/auth/update-profile', {
+                fullName,
+                email,
+                phone,
+                address
+            })
+
+            if (res.data.success) {
+                successMessage.value = 'Profile updated successfully!'
+                setTimeout(() => { successMessage.value = '' }, 3000)
+                errorMessage.value = ''
+                return true
+            } else {
+                errorMessage.value = res.data.message || 'Update failed'
+                return false
+            }
+        } catch (err) {
+            errorMessage.value = err.response?.data?.message || 'Server error, please try again later'
+            console.error('Update error:', err)
+            return false
+        }
+    }
+
     return {
         username,
         password,
         rememberMe,
         errorMessage,
+        successMessage,
         oldPassword,
         newPassword,
         confirmPassword,
@@ -182,6 +229,7 @@ export function useAuthHandle() {
         passwordChange,
         logout,
         profile,
-        fetchProfile
+        fetchProfile,
+        informationUpdate
     }
 }

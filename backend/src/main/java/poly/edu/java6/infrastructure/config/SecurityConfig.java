@@ -45,7 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/logup")
                         .permitAll()
-                        .requestMatchers("/api/auth/check-auth-status", "/api/auth/get_my_profile").authenticated()
+                        .requestMatchers("/api/auth/check-auth-status",
+                                "/api/auth/get_my_profile",
+                                "/api/auth/update-profile").authenticated()
                         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

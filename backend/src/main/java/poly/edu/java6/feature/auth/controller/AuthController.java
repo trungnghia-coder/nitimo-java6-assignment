@@ -18,6 +18,7 @@ import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupResponse;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeResponce;
+import poly.edu.java6.feature.auth.dto.userInformation.UserProfileRequest;
 import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.JwtService;
@@ -139,8 +140,21 @@ public class AuthController {
 
         return ResponseEntity.ok(profile);
     }
-}
-        
-    
 
-    
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/update-profile")
+    public ResponseEntity<UserProfileRequest> updateMyProfile(
+            Principal principal,
+            @RequestBody UserProfileRequest profileRequest) {
+        String identifier = principal.getName();
+        UserProfileRequest updatedProfile;
+
+        if (identifier != null && identifier.contains("@")) {
+            updatedProfile = authService.updateUserProfileByEmail(identifier, profileRequest);
+        } else {
+            updatedProfile = authService.updateUserProfileByUsername(identifier, profileRequest);
+        }
+
+        return ResponseEntity.ok(updatedProfile);
+    }
+}
