@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
+import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.model.User;
@@ -74,5 +75,28 @@ public class AuthServiceImpl implements AuthService {
         user.setUpdatedAt(LocalDateTime.now());
 
         authRepository.save(user);
+    }
+
+    private UserProfileResponce mapToDTO(User user) {
+        return new UserProfileResponce(
+                user.getFullName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getAddress()
+        );
+    }
+
+    @Override
+    public UserProfileResponce getUserProfileByEmail(String email) {
+        User user = authRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return mapToDTO(user);
+    }
+
+    @Override
+    public UserProfileResponce getUserProfileByPhone(String phone) {
+        User user = authRepository.findByPhone(phone)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + phone));
+        return mapToDTO(user);
     }
 }

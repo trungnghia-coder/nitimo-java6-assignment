@@ -88,15 +88,15 @@ function resetWard() {
 }
 
 function hideProvinceList() {
-    setTimeout(() => provinceListShown.value = false, 100)
+    provinceListShown.value = false
 }
 
 function hideDistrictList() {
-    setTimeout(() => districtListShown.value = false, 100)
+    districtListShown.value = false
 }
 
 function hideWardList() {
-    setTimeout(() => wardListShown.value = false, 100)
+    wardListShown.value = false
 }
 
 async function fetchProvinces() {

@@ -127,6 +127,47 @@ export function useAuthHandle() {
         }
     }
 
+    const profile = ref({
+        fullName: '',
+        email: '',
+        phone: '',
+        address: ''
+    })
+
+    async function fetchProfile() {
+        try {
+            const response = await fetch('/api/auth/get_my_profile', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                cache: 'no-store'
+            })
+
+            console.log('Response status:', response.status)
+            console.log('Response headers:', response.headers)
+
+            const text = await response.text()  // Lấy raw text trước
+            console.log('Response body:', text)
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch profile: ${response.status}`)
+            }
+
+            const data = JSON.parse(text)  // Parse thủ công
+            profile.value = {
+                fullName: data.fullName || '',
+                email: data.email || '',
+                phone: data.phone || '',
+                address: data.address || ''
+            }
+        } catch (err) {
+            console.error('Error fetching profile:', err)
+            throw err
+        }
+    }
+
     return {
         username,
         password,
@@ -139,6 +180,8 @@ export function useAuthHandle() {
         signup,
         resetPassword,
         passwordChange,
-        logout
+        logout,
+        profile,
+        fetchProfile
     }
 }

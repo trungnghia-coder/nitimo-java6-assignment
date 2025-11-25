@@ -49,20 +49,20 @@
               <form class="form info-form">
                 <div class="form-group full-width">
                   <label class="form-label">Full Name</label>
-                  <input type="text" class="form-control" placeholder="Your full name"/>
+                  <input v-model="profile.fullName" type="text" class="form-control" placeholder="Your full name"/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Email</label>
-                  <input type="email" class="form-control" placeholder="Your email"/>
+                  <input v-model="profile.email" type="email" class="form-control" placeholder="Your email"/>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Phone Number</label>
-                  <input type="text" class="form-control" placeholder="Your number" />
+                  <input v-model="profile.phone" type="text" class="form-control" placeholder="Your number" />
                 </div>
                 <div class="form-group full-width">
                   <label class="form-label">Address</label>
                   <div class="d-flex gap-2">
-                    <input type="text" class="form-control flex-grow-1" placeholder="Your address" />
+                    <input v-model="profile.address" type="text" class="form-control flex-grow-1" placeholder="Your address" />
                     <button type="button" class="btn btn-secondary" @click="activeTab = 'location'">Change Location</button>
                   </div>
                 </div>
@@ -110,13 +110,19 @@
         </main>
         
         <div v-if="activeTab === 'location'" class="location-picker-fullscreen">
-          <button type="button" class="btn-back-to-account" @click="activeTab = 'info'">
-            ← Back to Account
-          </button>
+          
           <div class="location-picker-fullscreen-container">
-            <h2 class="location-picker-fullscreen-title">Select Your Location</h2>
-            <p class="location-picker-fullscreen-subtitle">Choose your province, district, and ward</p>
-            
+            <div class="location-picker-header">
+              <div>
+                <h2 class="location-picker-fullscreen-title">Select Your Location</h2>
+                <p class="location-picker-fullscreen-subtitle">Choose your province, district, ward, and street address</p>
+              </div>
+              <button type="button" class="btn-back-to-account" @click="activeTab = 'info'" title="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                </svg>
+              </button>
+            </div>
             <div class="location-picker-wrapper">
               <LocationPiker />
             </div>
@@ -135,7 +141,7 @@
 <script setup>
 import '../assets/css/accountManage.css'
 import { useAuthHandle } from '../composables/authHandle'
-import { ref, computed } from 'vue'
+import { ref, computed , onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 import LocationPiker from '../components/LocationPiker.vue'
 import {
@@ -151,7 +157,7 @@ const oldPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 
-const { logout, passwordChange } = useAuthHandle()
+const { logout, passwordChangem, fetchProfile, profile } = useAuthHandle()
 
 const handlePasswordChange = async () => {
   await passwordChange(oldPassword.value, newPassword.value, confirmPassword.value)
@@ -173,4 +179,8 @@ const confirmLocationAndBack = () => {
 function goToManagement() {
   router.push('/manage')
 }
+
+onMounted(() => {
+  fetchProfile()
+})
 </script>

@@ -1,17 +1,30 @@
 <template>
   <div class="location-picker">
-    <div class="location-grid">
+    <div class="grid md:grid-cols-4 gap-4">
+      <!-- Street Address Input -->
+      <div class="location-group">
+        <label class="location-label">Street Address</label>
+        <div class="relative">
+          <input
+            v-model.trim="streetAddress"
+            type="text"
+            class="location-input"
+            placeholder="e.g., 123 Main Street, Apt 4B"
+          />
+        </div>
+      </div>
+
       <!-- Province Input -->
       <div class="location-group">
         <label class="location-label">Province / City</label>
-        <div class="location-input-wrapper">
+        <div class="relative">
           <input
             v-model.trim="provinceSearch"
             type="text"
             class="location-input"
             placeholder="Search province..."
             @focus="startSearchingProvince"
-            @blur="hideProvinceList"
+            @blur="hideProvinceListWithDelay"
           />
           <div
             class="location-dropdown"
@@ -34,7 +47,7 @@
       <!-- District Input -->
       <div class="location-group">
         <label class="location-label">District</label>
-        <div class="location-input-wrapper">
+        <div class="relative">
           <input
             v-model.trim="districtSearch"
             type="text"
@@ -42,7 +55,7 @@
             placeholder="Search district..."
             @focus="startSearchingDistrict"
             @keyup="searchDistrictOnTyping()"
-            @blur="hideDistrictList"
+            @blur="hideDistrictListWithDelay"
           />
           <div
             class="location-dropdown"
@@ -65,14 +78,14 @@
       <!-- Ward Input -->
       <div class="location-group">
         <label class="location-label">Ward</label>
-        <div class="location-input-wrapper">
+        <div class="relative">
           <input
             v-model.trim="wardSearch"
             type="text"
             class="location-input"
             placeholder="Search ward..."
             @focus="startSearchingWard"
-            @blur="hideWardList"
+            @blur="hideWardListWithDelay"
           />
           <div
             class="location-dropdown"
@@ -94,9 +107,9 @@
     </div>
 
     <!-- Selected Location Display -->
-    <div class="selected-location">
-      <p class="selected-location-label">Selected Location:</p>
-      <p class="selected-location-value">
+    <div class="selected-location mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <p class="text-sm font-semibold text-gray-700 mb-1">Selected Location:</p>
+      <p class="text-base text-blue-600 font-medium">
         {{ selectedLocation || "No location selected" }}
       </p>
     </div>
@@ -108,15 +121,10 @@
   font-family: inherit;
 }
 
-.location-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
 .location-group {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .location-label {
@@ -128,12 +136,7 @@
   letter-spacing: 0.5px;
 }
 
-.location-input-wrapper {
-  position: relative;
-}
-
 .location-input {
-  width: 100%;
   padding: 0.75rem;
   border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -142,7 +145,6 @@
   outline: none;
   transition: all 0.2s ease;
   background-color: #fff;
-  box-sizing: border-box;
 }
 
 .location-input:focus {
@@ -167,7 +169,7 @@
   max-height: 12rem;
   overflow-y: auto;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  z-index: 1051;
 }
 
 .location-list {
@@ -196,26 +198,7 @@
 }
 
 .selected-location {
-  margin-top: 16px;
-  padding: 12px;
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 6px;
   animation: slideIn 0.3s ease-out;
-}
-
-.selected-location-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 6px 0;
-}
-
-.selected-location-value {
-  font-size: 1rem;
-  color: #2563eb;
-  font-weight: 500;
-  margin: 0;
 }
 
 @keyframes slideIn {
@@ -230,19 +213,20 @@
 }
 
 @media (max-width: 768px) {
-  .location-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
   .location-dropdown {
     max-height: 10rem;
   }
 }
+
+/* Tailwind classes for compatibility */
+:deep(.highlight) {
+  font-weight: 700;
+  color: #1e40af;
+}
 </style>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   provinceSearch,
   provinceListShown,
@@ -269,8 +253,11 @@ import {
   hideWardList
 } from '../composables/locationPiker'
 
+const streetAddress = ref('')
+
 const selectedLocation = computed(() => {
   const parts = [
+    streetAddress.value,
     selectedWard.value?.name,
     selectedDistrict.value?.name,
     selectedProvince.value?.name
@@ -278,4 +265,16 @@ const selectedLocation = computed(() => {
   
   return parts.length ? parts.join(', ') : null
 })
+
+const hideProvinceListWithDelay = () => {
+  setTimeout(hideProvinceList, 150)
+}
+
+const hideDistrictListWithDelay = () => {
+  setTimeout(hideDistrictList, 150)
+}
+
+const hideWardListWithDelay = () => {
+  setTimeout(hideWardList, 150)
+}
 </script>

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,7 @@ import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupResponse;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeResponce;
+import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.JwtService;
 import poly.edu.java6.feature.auth.service.AuthService;
@@ -64,9 +66,9 @@ public class AuthController {
         jwtCookie.setMaxAge(maxAgeSeconds);
         jwtCookie.setPath("/");
         jwtCookie.setAttribute("SameSite", "Lax");
-        jwtCookie.setSecure(false);
+        jwtCookie.setSecure(true);
         response.addCookie(jwtCookie);
-        return ResponseEntity.ok(new LoginResponse(true, "Login successful", null));
+        return ResponseEntity.ok(new LoginResponse(true, "Login successful", token));
     }
 
     @PostMapping("/logup")
@@ -121,4 +123,24 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new PasswordChangeResponce(false, e.getMessage()));
         }
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/get_my_profile")
+    public ResponseEntity<UserProfileResponce> getMyProfile(Principal principal) {
+        String identifier = principal.getName();
+
+        UserProfileResponce profile;
+
+        if (identifier != null && identifier.contains("@")) {
+            profile = authService.getUserProfileByEmail(identifier);
+        } else {
+            profile = authService.getUserProfileByPhone(identifier);
+        }
+
+        return ResponseEntity.ok(profile);
+    }
 }
+        
+    
+
+    
