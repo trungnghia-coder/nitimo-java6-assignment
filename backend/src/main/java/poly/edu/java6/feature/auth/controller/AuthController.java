@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import poly.edu.java6.feature.auth.dto.login.LoginResponse;
@@ -18,14 +20,15 @@ import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupResponse;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeResponce;
-import poly.edu.java6.feature.auth.dto.userInformation.UserProfileRequest;
+import poly.edu.java6.feature.auth.dto.updateUserProfile.UpdateUserProfileRequest;
+import poly.edu.java6.feature.auth.dto.updateUserProfile.UpdateUserProfileResponce;
 import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
+import poly.edu.java6.feature.auth.service.CustomUserDetails;
 import poly.edu.java6.feature.auth.service.JwtService;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.model.User;
 
-import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -103,23 +106,19 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public ResponseEntity<PasswordChangeResponce> changeMyPassword(
-            Principal principal,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody PasswordChangeRequest password) {
-        String identifier = principal.getName();
+
+        String email = userDetails.getEmail();
+        String phone = userDetails.getPhone();
 
         try {
             if (!password.getNewPassword().equals(password.getConfirmPassword())) {
                 return ResponseEntity.badRequest()
                         .body(new PasswordChangeResponce(false, "New password and confirm password do not match"));
             }
-
-            if (identifier != null && identifier.contains("@")) {
-                authService.changePasswordByEmail(identifier, password);
-            } else {
-                authService.changePasswordByPhone(identifier, password);
-            }
+            authService.changePasswordByEmailOrPhone(email,phone, password);
             return ResponseEntity.ok(new PasswordChangeResponce(true, "Password changed successfully"));
-
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new PasswordChangeResponce(false, e.getMessage()));
         }
@@ -127,34 +126,28 @@ public class AuthController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/get_my_profile")
-    public ResponseEntity<UserProfileResponce> getMyProfile(Principal principal) {
-        String identifier = principal.getName();
+    public ResponseEntity<UserProfileResponce> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String email = userDetails.getEmail();
+        String phone = userDetails.getPhone();
 
         UserProfileResponce profile;
-
-        if (identifier != null && identifier.contains("@")) {
-            profile = authService.getUserProfileByEmail(identifier);
-        } else {
-            profile = authService.getUserProfileByPhone(identifier);
-        }
+        profile = authService.getUserProfileByEmailOrPhone(email, phone);
 
         return ResponseEntity.ok(profile);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/update-profile")
-    public ResponseEntity<UserProfileRequest> updateMyProfile(
-            Principal principal,
-            @RequestBody UserProfileRequest profileRequest) {
-        String identifier = principal.getName();
-        UserProfileRequest updatedProfile;
-
-        if (identifier != null && identifier.contains("@")) {
-            updatedProfile = authService.updateUserProfileByEmail(identifier, profileRequest);
-        } else {
-            updatedProfile = authService.updateUserProfileByUsername(identifier, profileRequest);
+    public ResponseEntity<UpdateUserProfileResponce> updateMyProfile(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UpdateUserProfileRequest profileRequest) {
+        String username = userDetails.getUsername();
+        try {
+            authService.updateUserProfile(username, profileRequest);
+            return ResponseEntity.ok(new UpdateUserProfileResponce(true, "Your profile updated successfully"));
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(new UpdateUserProfileResponce(false, e.getMessage()));
         }
-
-        return ResponseEntity.ok(updatedProfile);
     }
+
 }

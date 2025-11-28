@@ -18,28 +18,14 @@ public class JwtService {
     public String generateToken(User user, boolean rememberMe) {
         long expirationTime = rememberMe ? EXPIRATION_LONG : EXPIRATION_SHORT;
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(user.getUsername())
                 .claim("username", user.getUsername())
+                .claim("email", user.getEmail())
+                .claim("phone", user.getPhone())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    public boolean isTokenValid(String token) {
-        return extractClaims(token).getExpiration().after(new Date());
-    }
-
-    public Long extractUserId(String token) {
-        return extractClaims(token).get("userId", Long.class);
     }
 
     public boolean validateToken(String token) {

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
-import poly.edu.java6.feature.auth.dto.userInformation.UserProfileRequest;
+import poly.edu.java6.feature.auth.dto.updateUserProfile.UpdateUserProfileRequest;
 import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.AuthService;
@@ -46,17 +46,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void changePasswordByEmail(String email, PasswordChangeRequest password) {
-        User user = authRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-
-        processPasswordChange(user, password);
-    }
-
-    @Override
-    public void changePasswordByPhone(String username, PasswordChangeRequest password) {
-        User user = authRepository.findByPhone(username)
-                .orElseThrow(() -> new RuntimeException("User not found with phone: " + username));
+    public void changePasswordByEmailOrPhone(String email, String phone, PasswordChangeRequest password) {
+        User user = authRepository.findByEmailOrPhone(email, phone)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email + "or" + phone));
 
         processPasswordChange(user, password);
     }
@@ -89,8 +81,25 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    private UserProfileRequest mapToDTORequest(User user) {
-        return new UserProfileRequest(
+    @Override
+    public UserProfileResponce getUserProfileByEmailOrPhone(String email, String phone) {
+        User user = authRepository.findByEmailOrPhone(email, phone)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email + "or" + phone));
+        return mapToDTO(user);
+    }
+
+    private User updateUserEntity(User user, UpdateUserProfileRequest userRequest) {
+        user.setFullName(userRequest.getFullName());
+        user.setEmail(userRequest.getEmail());
+        user.setPhone(userRequest.getPhone());
+        user.setAddress(userRequest.getAddress());
+        user.setUpdatedAt(LocalDateTime.now());
+        return authRepository.save(user);
+    }
+
+
+    private static UpdateUserProfileRequest mapToDTORequest(User user) {
+        return new UpdateUserProfileRequest(
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
@@ -99,42 +108,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserProfileResponce getUserProfileByEmail(String email) {
-        User user = authRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        return mapToDTO(user);
-    }
-
-    @Override
-    public UserProfileResponce getUserProfileByPhone(String phone) {
-        User user = authRepository.findByPhone(phone)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + phone));
-        return mapToDTO(user);
-    }
-
-    private User updateUserEntity(User user, UserProfileRequest userRequest) {
-        user.setFullName(userRequest.getFullName());
-        user.setPhone(userRequest.getPhone());
-        user.setAddress(userRequest.getAddress());
-        user.setUpdatedAt(LocalDateTime.now());
-        return authRepository.save(user);
-    }
-
-    @Override
     @Transactional
-    public UserProfileRequest updateUserProfileByEmail(String email, UserProfileRequest userRequest) {
-        User user = authRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-
-        User updatedUser = updateUserEntity(user, userRequest);
-        return mapToDTORequest(updatedUser);
-    }
-
-    @Override
-    @Transactional
-    public UserProfileRequest updateUserProfileByUsername(String phone, UserProfileRequest userRequest) {
-        User user = authRepository.findByPhone(phone)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + phone));
+    public UpdateUserProfileRequest updateUserProfile(String username, UpdateUserProfileRequest userRequest) {
+        User user = authRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
         User updatedUser = updateUserEntity(user, userRequest);
         return mapToDTORequest(updatedUser);
