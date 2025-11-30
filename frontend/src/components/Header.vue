@@ -27,9 +27,11 @@
                     Thời Trang Nữ
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                    <li><a class="dropdown-item" href="#">Áo</a></li>
-                    <li><a class="dropdown-item" href="#">Quần</a></li>
-                    <li><a class="dropdown-item" href="#">Váy</a></li>
+                        <li v-for="category in categories" :key="category.categoryId">
+                            <router-link class="dropdown-item" :to="`/products?category=${category.categoryCode}`">
+                                {{ category.categoryName }}
+                            </router-link>
+                        </li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -73,9 +75,12 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { isUserLoggedIn } from '../composables/authHandle'
+import useCategory from '../composables/useCategory'
 const router = useRouter()
 
 const emit = defineEmits(['open-cart'])
+
+const { categories } = useCategory()
 
 const openCart = () => {
   emit('open-cart')
