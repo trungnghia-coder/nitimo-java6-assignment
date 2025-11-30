@@ -212,10 +212,6 @@ footer a:hover {
 }
 
 /* Price Section */
-.price-section {
-    background-color: #fff5f5 !important;
-}
-
 .price-current {
     font-size: 28px;
     color: #f27127;
