@@ -8,8 +8,6 @@ import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
 public interface AuthService {
     String signup(LogupRequest logupRequest);
     void changePasswordByEmailOrPhone(String email, String phone, PasswordChangeRequest password);
-
     UserProfileResponce getUserProfileByEmailOrPhone(String email, String phone);
-
     UpdateUserProfileRequest updateUserProfile(String username, UpdateUserProfileRequest profileDTO);
 }

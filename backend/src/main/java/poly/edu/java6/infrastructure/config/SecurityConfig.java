@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/logup")
+                        .requestMatchers("/api/auth/login", "/api/auth/logup","/api/category")
                         .permitAll()
                         .requestMatchers("/api/auth/check-auth-status",
                                 "/api/auth/get_my_profile",
