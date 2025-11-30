@@ -37,7 +37,7 @@
             <router-link :to="{ name: 'ProductDetail', params: { id: product.productId } }" class="product-link">
               <div class="product-card">
               <!-- Discount Badge -->
-              <div class="discount-badge" v-if="product.discount > 0">-{{ Math.round(product.discount * 100) }}%</div>
+              <div class="discount-badge" v-if="product.discount > 0">-{{ calculateDiscountPercent(product.productPrice, product.discount) }}%</div>
               
               <!-- Product Image -->
               <div class="product-image position-relative">
@@ -45,7 +45,6 @@
                   :src="getPrimaryImage(product.images)" 
                   :alt="product.productName" 
                   class="w-100 img-fluid">
-                <div class="rating-badge">⭐ 2021 đã bán</div>
               </div>
 
               <!-- Product Info -->
@@ -68,11 +67,11 @@
 
                 <!-- Price -->
                 <div class="price-section">
-                  <span class="price-current fw-bold">{{ formatPrice(product.productPrice) }}đ</span>
+                  <span class="price-current fw-bold">{{ formatPrice(calculateCurrentPrice(product.productPrice, product.discount)) }}đ</span>
                   <span 
                     class="price-original text-muted text-decoration-line-through ms-2"
                     v-if="product.discount > 0">
-                    {{ formatPrice(calculateOriginalPrice(product.productPrice, product.discount)) }}đ
+                    {{ formatPrice(product.productPrice) }}đ
                   </span>
                 </div>
               </div>
@@ -123,8 +122,12 @@ const formatPrice = (price) => {
   return new Intl.NumberFormat('vi-VN').format(price);
 }
 
-const calculateOriginalPrice = (currentPrice, discount) => {
-  return currentPrice / (1 - discount);
+const calculateCurrentPrice = (originalPrice, discountAmount) => {
+  return originalPrice - discountAmount;
+}
+
+const calculateDiscountPercent = (originalPrice, discountAmount) => {
+  return originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
 }
 
 let observer = null;

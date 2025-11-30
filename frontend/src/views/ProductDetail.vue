@@ -1,6 +1,14 @@
 <template>
   <div class="product-detail-container py-5">
-    <div class="container">
+    <!-- Loading Spinner -->
+    <div v-if="loadingDetail" class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+    </div>
+
+    <!-- Product Content -->
+    <div v-else-if="product.id" class="container">
       <div class="row g-5">
         <!-- Product Images Gallery -->
         <div class="col-lg-5">
@@ -35,11 +43,6 @@
         <!-- Product Info -->
         <div class="col-lg-6">
           <div class="product-info">
-            <!-- Rating -->
-            <div class="rating-section d-flex align-items-center gap-2 mb-3">
-              <div class="stars">⭐⭐⭐⭐⭐</div>
-              <span class="rating-text">(2.021 đã bán)</span>
-            </div>
 
             <!-- Product Name -->
             <h1 class="product-name">{{ product.name }}</h1>
@@ -48,12 +51,14 @@
             <div class="price-section bg-light p-3 rounded mb-4">
               <div class="d-flex align-items-center gap-3 mb-2">
                 <span class="price-current fw-bold">{{ formatPrice(product.currentPrice) }}đ</span>
-                <span class="price-original text-muted text-decoration-line-through">
+                <span 
+                  v-if="product.discount > 0"
+                  class="price-original text-muted text-decoration-line-through">
                   {{ formatPrice(product.originalPrice) }}đ
                 </span>
               </div>
-              <div class="discount-info">
-                <strong>Tiết kiệm: {{ formatPrice(product.originalPrice - product.currentPrice) }}đ</strong>
+              <div v-if="product.discount > 0" class="discount-info">
+                <strong>Tiết kiệm: {{ formatPrice(product.discountAmount) }}đ</strong>
               </div>
             </div>
 
@@ -70,26 +75,6 @@
                 >
                   {{ size }}
                 </button>
-              </div>
-            </div>
-
-            <!-- Color Selection -->
-            <div class="color-section mb-4">
-              <label class="form-label fw-bold">Màu sắc:</label>
-              <div class="color-options d-flex gap-3">
-                <div 
-                  v-for="color in product.colors" 
-                  :key="color.name"
-                  class="color-option"
-                  :class="{ active: selectedColor === color.name }"
-                  @click="selectedColor = color.name"
-                >
-                  <div 
-                    class="color-circle" 
-                    :style="{ backgroundColor: color.code }"
-                  ></div>
-                  <span class="color-name">{{ color.name }}</span>
-                </div>
               </div>
             </div>
 
@@ -156,58 +141,109 @@
         </div>
       </div>
     </div>
+
+    <!-- Error State: Không tìm thấy sản phẩm -->
+    <div v-else class="container text-center py-5">
+      <h3>Không tìm thấy sản phẩm</h3>
+      <p class="text-muted">Sản phẩm bạn đang tìm không tồn tại hoặc đã bị xóa.</p>
+      <router-link to="/" class="btn btn-primary">Về trang chủ</router-link>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import useProduct from '../composables/useProduct'
 
+const { productDetail, loadingDetail, fetchProductDetail } = useProduct();
 const route = useRoute()
 
-// Product Data
-const product = ref({
-  id: 1,
-  name: 'Áo khoác lông vũ nữ dáng lộ siêu nhẹ',
-  images: [
-    'https://cdn.hstatic.net/products/200000503583/cdn01085_1_05c9b02871394e849cbbb413fcfeb97b_grande.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01075_e3f46d3081f7468ea00d4a758d87e974_master.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01111_a586823a2f244d2d99fe7c6b4705e44d_compact.jpg',
-    'https://cdn.hstatic.net/products/200000503583/cdn01156_06c8c7e5f7714322903e61f6a21a0f4a_master.jpg',
-  ],
-  currentPrice: 795000,
-  originalPrice: 1250000,
-  discount: 55,
-  stock: 150,
-  sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  colors: [
-    { name: 'Đỏ Bordo', code: '#8B1538' },
-    { name: 'Đen', code: '#000000' },
-    { name: 'Xám', code: '#808080' },
-  ],
-  description: `Áo khoác lông vũ nữ với thiết kế dáng lộ hiện đại, được làm từ chất liệu lông vũ cao cấp siêu nhẹ. 
-  Thiết kế tôn dáng, thoải mái, phù hợp cho mọi mùa. Sản phẩm đã qua kiểm tra chất lượng nghiêm ngặt.
-  
-  Đặc điểm:
-  - Chất liệu lông vũ 100% siêu nhẹ
-  - Dáng lộ tôn dáng
-  - Khóa kéo êm
-  - Túi tay tiện dụng
-  - Thiết kế thời trang, phù hợp với nhiều phong cách`,
-})
-
 // State
-const mainImage = ref(product.value.images[0])
-const selectedSize = ref('M')
-const selectedColor = ref('Đỏ Bordo')
+const mainImage = ref('')
+const selectedSize = ref('')
 const quantity = ref(1)
+
+// Computed: Chuyển đổi productDetail từ backend thành format cho template
+const product = computed(() => {
+  if (!productDetail.value) {
+    return {
+      id: '',
+      name: '',
+      images: [],
+      currentPrice: 0,
+      originalPrice: 0,
+      discount: 0,
+      stock: 0,
+      sizes: [],
+      colors: [],
+      description: ''
+    }
+  }
+
+  const detail = productDetail.value;
+  
+  // Lấy danh sách ảnh từ images array
+  const imageList = detail.images?.map(img => img.imageUrl) || [];
+  
+  // Lấy danh sách size từ size array
+  const sizeList = detail.size?.map(s => s.sizeName) || [];
+  
+  // Tính tổng stock từ tất cả variants
+  const totalStock = detail.productVariant?.reduce((sum, variant) => sum + (variant.stock || 0), 0) || 0;
+  
+  // Backend lưu: productPrice = giá sau giảm, discount = số tiền giảm
+  const discountAmount = detail.discount || 0; 
+  const currentPrice = detail.productPrice - discountAmount; 
+  const originalPrice = detail.productPrice; 
+  
+  const discountPercent = originalPrice > 0 
+    ? Math.round((discountAmount / originalPrice) * 100)
+    : 0;
+
+  return {
+    id: detail.productId,
+    name: detail.productName,
+    images: imageList,
+    currentPrice: currentPrice,
+    originalPrice: originalPrice,
+    discount: discountPercent, // % giảm giá (26)
+    discountAmount: discountAmount, // Số tiền giảm (50000)
+    stock: totalStock,
+    sizes: sizeList,
+    description: detail.productDescription || 'Chưa có mô tả'
+  }
+});
+
+// Watch: Khi product thay đổi, set ảnh chính và size mặc định
+watch(product, (newProduct) => {
+  if (newProduct.images.length > 0 && !mainImage.value) {
+    mainImage.value = newProduct.images[0];
+  }
+  if (newProduct.sizes.length > 0 && !selectedSize.value) {
+    selectedSize.value = newProduct.sizes[0];
+  }
+}, { immediate: true });
+
+// Load product detail khi component mount
+onMounted(async () => {
+  const productCode = route.params.id; 
+  if (productCode) {
+    await fetchProductDetail(productCode); 
+  }
+});
 
 // Methods
 const formatPrice = (price) => {
-  return price.toLocaleString('vi-VN')
+  return new Intl.NumberFormat('vi-VN').format(price)
 }
 
 const addToCart = () => {
+  if (!product.value.id) {
+    alert('Sản phẩm chưa được tải!');
+    return;
+  }
+  
   console.log({
     productId: product.value.id,
     productName: product.value.name,

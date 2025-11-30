@@ -7,6 +7,8 @@ export default function useProduct() {
     const totalPages = ref(0);
     const loading = ref(false);
     const hasMore = ref(true);
+    const productDetail = ref(null);
+    const loadingDetail = ref(false);
 
     const fetchProducts = async () => {
         if (loading.value || !hasMore.value) return;
@@ -27,14 +29,30 @@ export default function useProduct() {
         }
     };
 
+    const fetchProductDetail = async (productId) => {
+        try {
+            loadingDetail.value = true;
+            const response = await api.get(`/api/product/${productId}`);
+            productDetail.value = response.data;
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            loadingDetail.value = false;
+        }
+    };
+
     onMounted(() => {
-        fetchProducts();
+        fetchProducts(),
+            fetchProductDetail();
     });
 
     return {
         products,
         loading,
         hasMore,
-        fetchProducts
+        fetchProducts,
+        productDetail,
+        loadingDetail,
+        fetchProductDetail
     }
 }
