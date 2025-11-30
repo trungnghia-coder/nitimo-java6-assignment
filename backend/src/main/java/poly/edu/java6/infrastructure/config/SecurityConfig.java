@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login",
                                 "/api/auth/logup",
-                                "/api/category", 
+                                "/api/category",
                                 "/api/product/**").permitAll()
                         .requestMatchers("/api/auth/check-auth-status",
                                 "/api/auth/get_my_profile",
