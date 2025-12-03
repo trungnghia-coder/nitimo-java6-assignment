@@ -28,11 +28,11 @@ public class CartItem {
 
     @Column(name = "price", precision = 12, scale = 2, nullable = false)
     private BigDecimal price;
-}
 
-@Data
-@Embeddable
-class CartItemId implements Serializable {
-    private String cartCode;
-    private Integer variantId;
+    @Data
+    @Embeddable
+    public static class CartItemId implements Serializable {
+        private String cartCode;
+        private Integer variantId;
+    }
 }

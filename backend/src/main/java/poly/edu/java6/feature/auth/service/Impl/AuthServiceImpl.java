@@ -1,5 +1,6 @@
 package poly.edu.java6.feature.auth.service.Impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -115,5 +116,11 @@ public class AuthServiceImpl implements AuthService {
 
         User updatedUser = updateUserEntity(user, userRequest);
         return mapToDTORequest(updatedUser);
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return authRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng: " + username));
     }
 }

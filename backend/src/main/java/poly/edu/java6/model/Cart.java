@@ -1,15 +1,17 @@
 package poly.edu.java6.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "carts")
 public class Cart {
     @Id
-    @Column(name = "cartCode", length = 10)
+    @Column(name = "cartCode", length = 40)
     private String cartCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -18,7 +20,7 @@ public class Cart {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "ENUM('ACTIVE','INACTIVE')")
-    private CartStatus status = CartStatus.INACTIVE; // ACTIVE: đang dùng, INACTIVE: đã checkout/cũ
+    private CartStatus status = CartStatus.INACTIVE;
 
     @Column(name = "createdAt", updatable = false)
     private LocalDateTime createdAt;
@@ -26,9 +28,21 @@ public class Cart {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    // Mối quan hệ 1-n: Một Cart có nhiều Cart_Items
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
 
-    enum CartStatus { ACTIVE, INACTIVE }
+    public enum CartStatus { ACTIVE, INACTIVE }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

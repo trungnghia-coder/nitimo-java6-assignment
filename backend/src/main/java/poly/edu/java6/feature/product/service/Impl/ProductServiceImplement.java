@@ -10,12 +10,11 @@ import poly.edu.java6.feature.product.dto.productImages.ProductImageRequest;
 import poly.edu.java6.feature.product.repository.ProductImageRepository;
 import poly.edu.java6.feature.product.repository.ProductRepository;
 import poly.edu.java6.feature.product.repository.ProductVariantRepository;
-import poly.edu.java6.feature.product.repository.SizeRepository;
+import poly.edu.java6.feature.size.repository.SizeRepository;
 import poly.edu.java6.feature.product.service.ProductService;
 import poly.edu.java6.model.Product;
 import poly.edu.java6.model.ProductImage;
 import poly.edu.java6.model.ProductVariant;
-import poly.edu.java6.model.Size;
 
 import java.util.ArrayList;
 import java.util.List;
