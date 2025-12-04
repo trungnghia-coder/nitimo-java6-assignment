@@ -25,8 +25,8 @@
             <img :src="item.image" :alt="item.name">
           </div>
           <div class="item-details">
-            <h5 class="item-name">{{ item.name }}</h5>
-            <p class="item-price">{{ item.price }}</p>
+            <h5 class="item-name">{{ item.name }} - {{ item.size }}</h5>
+            <p class="item-price">{{ item.price.toLocaleString('vi-VN') }}đ</p>
             <div class="quantity-selector-slide">
               <button class="qty-btn-slide" @click="decreaseQuantity(item.id)">−</button>
               <span>{{ item.quantity }}</span>
@@ -74,8 +74,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import useCart from '../composables/useCart'
+
+const { items, fetchItemToCart } = useCart();
 
 const props = defineProps({
   isOpen: {
@@ -87,58 +90,38 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const router = useRouter()
 
-// Sample cart items
-const cartItems = ref([
-  {
-    id: 1,
-    name: 'Áo thun cotton nam',
-    price: '150.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-kieu-nu__1__d89a4e13aa914a1eb48844d9741815e3_master.jpg'
-  },
-  {
-    id: 2,
-    name: 'Quần jean xanh',
-    price: '350.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-phao__4__8c7be53ea3274dec972b1dd3c384d1ee_master.jpg'
-  },
-  {
-    id: 3,
-    name: 'Giày thể thao trắng',
-    price: '450.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
-  },
-  {
-    id: 3,
-    name: 'Giày thể thao trắng',
-    price: '450.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
+// Cart items từ API
+const cartItems = computed(() => {
+  if (!items.value || items.value.length === 0) return [];
+  
+  return items.value.map(item => ({
+    id: item.variantId,
+    name: item.productName,
+    price: item.price,
+    quantity: item.quantity,
+    image: item.imageUrl,
+    size: item.size
+  }));
+})
+
+// Fetch cart items khi component mount
+onMounted(async () => {
+  await fetchItemToCart();
+})
+
+// Fetch lại khi cart mở
+watch(() => props.isOpen, async (newVal) => {
+  if (newVal) {
+    await fetchItemToCart();
   }
-  ,
-  {
-    id: 3,
-    name: 'Giày thể thao trắng',
-    price: '450.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
-  }
-  ,
-  {
-    id: 3,
-    name: 'Giày thể thao trắng',
-    price: '450.000đ',
-    quantity: 1,
-    image: 'https://cdn.hstatic.net/products/200000503583/ao-giu-nhiet__4__e238afd21a6c430fa7e860dc2a505d6f_master.jpg'
-  }
-])
+})
 
 const totalPrice = computed(() => {
   return cartItems.value.reduce((total, item) => {
-    const price = parseInt(item.price.replace(/\D/g, '')) * item.quantity
-    return total + price
+    const price = typeof item.price === 'string' 
+      ? parseInt(item.price.replace(/\D/g, '')) 
+      : item.price;
+    return total + (price * item.quantity);
   }, 0)
 })
 

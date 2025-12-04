@@ -68,12 +68,12 @@
               <div class="size-options d-flex gap-2">
                 <button 
                   v-for="size in product.sizes" 
-                  :key="size"
+                  :key="size.id"
                   class="size-btn"
-                  :class="{ active: selectedSize === size }"
-                  @click="selectedSize = size"
+                  :class="{ active: selectedSize === size.id }"
+                  @click="selectedSize = size.id"
                 >
-                  {{ size }}
+                  {{ size.name }}
                 </button>
               </div>
             </div>
@@ -107,7 +107,7 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons d-flex gap-3 mb-4">
-              <button class="btn btn-add-to-cart flex-grow-1" @click="addToCart">
+              <button class="btn btn-add-to-cart flex-grow-1" @click="handleAddToCart">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
                   <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
                 </svg>
@@ -155,13 +155,15 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import useProduct from '../composables/useProduct'
+import useCart from '../composables/useCart'
 
 const { productDetail, loadingDetail, fetchProductDetail } = useProduct();
 const route = useRoute()
+const { addToCart, successMessage, cart } = useCart();
 
 // State
 const mainImage = ref('')
-const selectedSize = ref('')
+const selectedSize = ref()
 const quantity = ref(1)
 
 // Computed: Chuyển đổi productDetail từ backend thành format cho template
@@ -186,8 +188,22 @@ const product = computed(() => {
   // Lấy danh sách ảnh từ images array
   const imageList = detail.images?.map(img => img.imageUrl) || [];
   
-  // Lấy danh sách size từ size array
-  const sizeList = detail.size?.map(s => s.sizeName) || [];
+  // Lấy danh sách size từ productVariant (lọc trùng lặp)
+  const uniqueSizeIds = [...new Set(detail.productVariant?.map(v => v.sizeId) || [])];
+  
+  // Map sizeId sang tên size
+  const sizeNameMap = {
+    1: 'S',
+    2: 'M', 
+    3: 'L',
+    4: 'XL',
+    5: 'XXL'
+  };
+  
+  const sizeList = uniqueSizeIds.map(sizeId => ({
+    id: sizeId,
+    name: sizeNameMap[sizeId] || `Size ${sizeId}`
+  }));
   
   // Tính tổng stock từ tất cả variants
   const totalStock = detail.productVariant?.reduce((sum, variant) => sum + (variant.stock || 0), 0) || 0;
@@ -207,8 +223,8 @@ const product = computed(() => {
     images: imageList,
     currentPrice: currentPrice,
     originalPrice: originalPrice,
-    discount: discountPercent, // % giảm giá (26)
-    discountAmount: discountAmount, // Số tiền giảm (50000)
+    discount: discountPercent, 
+    discountAmount: discountAmount, 
     stock: totalStock,
     sizes: sizeList,
     description: detail.productDescription || 'Chưa có mô tả'
@@ -221,7 +237,7 @@ watch(product, (newProduct) => {
     mainImage.value = newProduct.images[0];
   }
   if (newProduct.sizes.length > 0 && !selectedSize.value) {
-    selectedSize.value = newProduct.sizes[0];
+    selectedSize.value = newProduct.sizes[0].id;
   }
 }, { immediate: true });
 
@@ -238,20 +254,12 @@ const formatPrice = (price) => {
   return new Intl.NumberFormat('vi-VN').format(price)
 }
 
-const addToCart = () => {
-  if (!product.value.id) {
-    alert('Sản phẩm chưa được tải!');
-    return;
+const handleAddToCart = async () => {
+  const success = await addToCart(product.value.id, quantity.value, selectedSize.value);
+  if (success) {
+    alert(successMessage.value)
+  } else {
+    alert('Thêm sản phẩm vào giỏ thất bại!');
   }
-  
-  console.log({
-    productId: product.value.id,
-    productName: product.value.name,
-    size: selectedSize.value,
-    color: selectedColor.value,
-    quantity: quantity.value,
-    price: product.value.currentPrice,
-  })
-  alert(`Đã thêm ${quantity.value} sản phẩm vào giỏ!`)
 }
 </script>
