@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import poly.edu.java6.feature.product.repository.ProductVariantRepository;
 import poly.edu.java6.model.ProductVariant;
 
+import java.math.BigDecimal;
+
 @Service
 public class ProductVariantService {
     @Autowired
@@ -17,4 +19,17 @@ public class ProductVariantService {
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sản phẩm với size đã chọn."));
     }
 
+    public BigDecimal calculateUnitPrice(ProductVariant variant) {
+        BigDecimal price = variant.getProduct().getPrice();
+        BigDecimal discount = variant.getProduct().getDiscount();
+
+        if (price == null) {
+            return BigDecimal.ZERO;
+        }
+        if (discount == null) {
+            discount = BigDecimal.ZERO;
+        }
+
+        return price.subtract(discount);
+    }
 }

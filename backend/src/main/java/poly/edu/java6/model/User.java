@@ -2,11 +2,13 @@ package poly.edu.java6.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@ToString(exclude = { "carts", "orders" })
 @Entity
 @Table(name = "users")
 public class User {
@@ -49,6 +51,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    public enum Status { ACTIVE, INACTIVE }
-    public enum Role { USER, ADMIN }
+    public enum Status {
+        ACTIVE, INACTIVE
+    }
+
+    public enum Role {
+        USER, ADMIN
+    }
 }

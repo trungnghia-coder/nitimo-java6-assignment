@@ -2,11 +2,13 @@ package poly.edu.java6.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
+@ToString(exclude = { "cart", "variant" })
 @Entity
 @Table(name = "cart_items")
 public class CartItem {
@@ -34,5 +36,10 @@ public class CartItem {
     public static class CartItemId implements Serializable {
         private String cartCode;
         private Integer variantId;
+    }
+
+    public BigDecimal getLineTotalPrice() {
+        BigDecimal unitPrice = this.variant.getProduct().getPrice().subtract(this.variant.getProduct().getDiscount());
+        return unitPrice.multiply(BigDecimal.valueOf(this.quantity));
     }
 }

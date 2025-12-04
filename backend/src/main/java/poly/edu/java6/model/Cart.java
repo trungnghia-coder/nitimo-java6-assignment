@@ -2,11 +2,13 @@ package poly.edu.java6.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@ToString(exclude = { "user", "items" })
 @Entity
 @Table(name = "carts")
 public class Cart {
@@ -31,7 +33,9 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
 
-    public enum CartStatus { ACTIVE, INACTIVE }
+    public enum CartStatus {
+        ACTIVE, INACTIVE
+    }
 
     @PrePersist
     protected void onCreate() {
