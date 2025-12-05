@@ -28,9 +28,9 @@
             <h5 class="item-name">{{ item.name }} - {{ item.size }}</h5>
             <p class="item-price">{{ item.price.toLocaleString('vi-VN') }}đ</p>
             <div class="quantity-selector-slide">
-              <button class="qty-btn-slide" @click="decreaseQuantity(item.id)">−</button>
+              <button class="qty-btn-slide" @click="decreaseQuantity(item.id, item.quantity)">−</button>
               <span>{{ item.quantity }}</span>
-              <button class="qty-btn-slide" @click="increaseQuantity(item.id)">+</button>
+              <button class="qty-btn-slide" @click="increaseQuantity(item.id, item.quantity)">+</button>
             </div>
           </div>
           <div class="item-remove">
@@ -68,6 +68,9 @@
         <button class="btn bg-F9943B w-100 mb-2 text-white" style="padding: 12px; font-weight: bold;" @click="goToCheckout">
           THANH TOÁN
         </button>
+        <button class="btn bg-white w-100 mb-2 text-black" style=" border: 1px solid #000000; font-size: 12px" @click="clearCart">
+          XÓA HẾT
+        </button>
       </div>
     </div>
   </transition>
@@ -78,7 +81,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import useCart from '../composables/useCart'
 
-const { items, fetchItemToCart } = useCart();
+const { items, fetchItemToCart, deleteItemFromCart,updateQuantity, successMessage, errorMessage } = useCart();
 
 const props = defineProps({
   isOpen: {
@@ -95,6 +98,7 @@ const cartItems = computed(() => {
   if (!items.value || items.value.length === 0) return [];
   
   return items.value.map(item => ({
+    cartCode: item.cartCode,
     id: item.variantId,
     name: item.productName,
     price: item.price,
@@ -125,18 +129,25 @@ const totalPrice = computed(() => {
   }, 0)
 })
 
-const removeItem = (id) => {
-  cartItems.value = cartItems.value.filter(item => item.id !== id)
+const removeItem = async (itemID) => {
+  await deleteItemFromCart(itemID);
 }
 
-const increaseQuantity = (id) => {
+const clearCart = async () => {
+  const removePromises = cartItems.value.map(item => deleteItemFromCart(item.id));
+  await Promise.all(removePromises);
+}
+
+const increaseQuantity = async (id, quantity) => {
+  await updateQuantity(id, quantity + 1);
   const item = cartItems.value.find(item => item.id === id)
   if (item) {
     item.quantity++
   }
 }
 
-const decreaseQuantity = (id) => {
+const decreaseQuantity = async (id, quantity) => {
+  await updateQuantity(id, quantity - 1);
   const item = cartItems.value.find(item => item.id === id)
   if (item && item.quantity > 1) {
     item.quantity--

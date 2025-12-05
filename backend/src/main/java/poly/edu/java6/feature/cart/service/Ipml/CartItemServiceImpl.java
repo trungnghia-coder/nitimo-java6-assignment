@@ -129,7 +129,11 @@ public class CartItemServiceImpl implements CartItemService {
     @Transactional
     public void deleteItemFromCart(String username, RemoveItemRequest removeItemRequest) {
         User user = authService.findUserByUsername(username);
-        cartItemRepository.deleteByCart_CartCodeAndVariant_VariantId(removeItemRequest.getCartCode(), removeItemRequest.getVariantId());
+        Cart cart = cartRepository.findByUserAndStatus(user, Cart.CartStatus.ACTIVE)
+                .orElse(null);
+        if (cart != null) {
+            cartItemRepository.deleteByCart_CartCodeAndVariant_VariantId(cart.getCartCode(), removeItemRequest.getVariantId());
+        }
     }
 
     @Override
