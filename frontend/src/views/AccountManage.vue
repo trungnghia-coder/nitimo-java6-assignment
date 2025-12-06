@@ -114,7 +114,6 @@
         </main>
         
         <div v-if="activeTab === 'location'" class="location-picker-fullscreen">
-          
           <div class="location-picker-fullscreen-container">
             <div class="location-picker-header">
               <div>

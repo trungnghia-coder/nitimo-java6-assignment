@@ -47,7 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/check-auth-status",
                                 "/api/auth/get_my_profile",
                                 "/api/auth/update-profile",
-                                "/api/cart-item/**").authenticated()
+                                "/api/cart-item/**",
+                                "/api/order/**").authenticated()
                         .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

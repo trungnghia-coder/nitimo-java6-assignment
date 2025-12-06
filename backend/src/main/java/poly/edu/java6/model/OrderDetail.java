@@ -2,6 +2,7 @@ package poly.edu.java6.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -39,12 +40,15 @@ public class OrderDetail {
 
     @Column(name = "subTotal", precision = 14, scale = 2)
     private BigDecimal subTotal;
+
+    @Data
+    @Embeddable
+    @NoArgsConstructor
+    public static class OrderDetailId implements Serializable {
+        private String orderCode;
+        private String productCode;
+        private Integer variantId;
+    }
 }
 
-@Data
-@Embeddable
-class OrderDetailId implements Serializable {
-    private String orderCode;
-    private String productCode;
-    private Integer variantId;
-}
+

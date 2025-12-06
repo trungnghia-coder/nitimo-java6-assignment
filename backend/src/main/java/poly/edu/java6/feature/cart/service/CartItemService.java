@@ -3,8 +3,6 @@ package poly.edu.java6.feature.cart.service;
 import poly.edu.java6.feature.cart.dto.AddItemRequest;
 import poly.edu.java6.feature.cart.dto.CartResponse;
 import poly.edu.java6.feature.cart.dto.RemoveItemRequest;
-import poly.edu.java6.model.Cart;
-import poly.edu.java6.model.CartItem;
 
 import java.util.List;
 

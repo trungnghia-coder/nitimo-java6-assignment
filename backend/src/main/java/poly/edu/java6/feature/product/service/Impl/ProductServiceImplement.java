@@ -112,4 +112,10 @@ public class ProductServiceImplement implements ProductService {
                 sizeDTOList
         );
     }
+
+    @Override
+    public Product findByProductCode(String productCode) {
+        Product pr = productRepository.findProductByProductCode(productCode);
+        return pr;
+    }
 }

@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import poly.edu.java6.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
+    Product findProductByProductCode(String productId);
 }

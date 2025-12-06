@@ -5,7 +5,7 @@ import CheckOut from "../views/Checkout.vue";
 import Account from "../views/AccountManage.vue";
 import Auth from "../views/Auth.vue";
 import Manage from "../views/Manage.vue";
-
+import OrderSuccess from "../views/OrderSuccess.vue";
 
 const routes = [
     {
@@ -41,6 +41,11 @@ const routes = [
         name: 'Manage',
         component: Manage,
         meta: { hideHeaderFooter: true }
+    },
+    {
+        path: '/order-success',
+        name: 'OrderSuccess',
+        component: OrderSuccess
     },
 ];
 

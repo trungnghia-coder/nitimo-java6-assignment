@@ -125,7 +125,7 @@ const totalPrice = computed(() => {
     const price = typeof item.price === 'string' 
       ? parseInt(item.price.replace(/\D/g, '')) 
       : item.price;
-    return total + (price * item.quantity);
+    return total + (price);
   }, 0)
 })
 

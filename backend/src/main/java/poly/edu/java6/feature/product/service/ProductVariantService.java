@@ -32,4 +32,9 @@ public class ProductVariantService {
 
         return price.subtract(discount);
     }
+
+    public ProductVariant findById(int id){
+        ProductVariant pv = productVariantRepository.findById(id).orElseThrow(null);
+        return pv;
+    }
 }

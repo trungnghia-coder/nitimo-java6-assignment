@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
     @Id
-    @Column(name = "orderCode", length = 15)
+    @Column(name = "orderCode", length = 16)
     private String orderCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,7 +40,7 @@ public class Order {
     @Column(name = "paymentStatus", columnDefinition = "ENUM('PAID','UNPAID','REFUNDED')")
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
-    @Column(name = "transactionId", length = 100)
+    @Column(name = "transactionId", length = 16)
     private String transactionId;
 
     @Column(name = "createdAt", updatable = false)
@@ -70,6 +70,19 @@ public class Order {
         PAID,
         UNPAID,
         REFUNDED
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
 
