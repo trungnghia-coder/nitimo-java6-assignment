@@ -80,9 +80,60 @@
             <div class="card-body">
               <h2 class="card-title h5 mb-3 pb-2 border-bottom">Order History</h2>
               
-              <div class="text-center py-5">
-                <img src="https://i.imgur.com/g8f0gN4.png" alt="No orders" class="img-fluid" style="width: 100px; opacity: 0.5;">
-                <p class="text-muted mt-3">You have no orders yet.</p>
+              <!-- Orders Table -->
+              <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Total</th>
+                      <th>Payment</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in orders" :key="item.orderId">
+                      <td>
+                        <span class="fw-semibold text-truncate d-inline-block" style="max-width: 120px;" :title="item.orderId">
+                          {{ item.orderId ? item.orderId.substring(0, 10) + '...' : 'N/A' }}
+                        </span>
+                      </td>
+                      <td>{{ formatDate(item.orderDate) }}</td>
+                      <td class="fw-bold text-danger">{{ formatCurrency(item.orderAmount) }}</td>
+                      <td>
+                        <span 
+                          class="badge"
+                          :class="{
+                            'bg-warning text-dark': item.paymentMethod === 'COD',
+                            'bg-primary': item.paymentMethod === 'BANK',
+                            'bg-success': item.paymentMethod === 'MOMO'
+                          }"
+                        >
+                          {{ item.paymentMethod }}
+                        </span>
+                      </td>
+                      <td>
+                        <span 
+                          class="badge"
+                          :class="{
+                            'bg-success': item.orderStatus === 'PENDING',
+                            'bg-info': item.orderStatus === 'CONFIRMED',
+                            'bg-primary': item.orderStatus === 'SHIPPING',
+                            'bg-secondary': item.orderStatus === 'COMPLETED',
+                            'bg-danger': item.orderStatus === 'CANCELLED'
+                          }"
+                        >
+                          {{ item.orderStatus }}
+                        </span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary" @click="openOrderDetails(item.orderId)">View Details</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -139,14 +190,23 @@
       </div>
     </div>
   </div>
+  <OrderDetailModal 
+    :isVisible="isModalOpen"
+    v-if="isModalOpen" 
+    v-bind="viewingOrder"
+    @close="closeModal" 
+  />
 </template>
 
 <script setup>
 import '../assets/css/accountManage.css'
 import { useAuthHandle } from '../composables/authHandle'
+import  useOrder  from '../composables/useOrder'
 import { ref, computed , onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 import LocationPiker from '../components/LocationPiker.vue'
+import OrderDetailModal from '../components/OrderDetailModal.vue'
+import useOrderDetail from '../composables/useOrderDetail'
 import {
   selectedProvince,
   selectedDistrict,
@@ -162,6 +222,27 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 
 const { logout, passwordChange, fetchProfile, profile, informationUpdate, errorMessage } = useAuthHandle()
+const { orders,  fetchOrderHistory } = useOrder()
+
+
+// Format date to DD/MM/YYYY
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+// Format currency to Vietnamese format
+const formatCurrency = (amount) => {
+  if (!amount && amount !== 0) return '0₫'
+  return new Intl.NumberFormat('vi-VN', { 
+    style: 'currency', 
+    currency: 'VND' 
+  }).format(amount)
+}
 
 const handlePasswordChange = async () => {
   const success = await passwordChange(oldPassword.value, newPassword.value, confirmPassword.value)
@@ -205,5 +286,60 @@ function goToManagement() {
 
 onMounted(() => {
   fetchProfile()
+  fetchOrderHistory()
 })
+
+const { infoOrderDetail, fetchOrderDetail } = useOrderDetail()
+
+const isModalOpen = ref(false)
+const viewingOrder = ref(null)
+
+const openOrderDetails = async (orderId) => {
+  // Fetch data với orderId từ parameter
+  await fetchOrderDetail(orderId)
+  
+  console.log('Fetching order:', orderId)
+  console.log('Order detail data:', infoOrderDetail.value)
+  
+  if (infoOrderDetail.value) {
+    const orderData = infoOrderDetail.value 
+    
+    const products = orderData.items ? orderData.items.map(item => ({
+      productName: item.productName || item.name || "N/A",
+      productCode: item.productCode || item.code || "N/A",
+      quantity: item.quantity || 0,
+      unitPrice: item.unitPrice || item.price || 0,
+      discount: item.discountProduct || 0,
+      subTotal: item.subtotalProduct || (item.quantity * (item.unitPrice || item.price || 0))
+    })) : []
+    
+    const subtotal = products.reduce((sum, item) => sum + item.subTotal, 0)
+    
+    viewingOrder.value = {
+      orderId: orderId, // Sửa từ orderId.value → orderId
+      orderDate: orderData.orderDate || new Date().toISOString(),
+      recipientName: orderData.username || "N/A",
+      recipientPhone: orderData.phone || "N/A",
+      recipientAddress: orderData.address || "N/A",
+      products: products,
+      paymentMethod: orderData.paymentMethod || "COD",
+      paymentStatus: orderData.paymentStatus || "UNPAID",
+      shippingFee: orderData.shippingFee || 0,
+      discountAmount: orderData.discount || 0,
+      subtotal: subtotal,
+      total: orderData.total || 0
+    }
+    
+    console.log('Viewing order data:', viewingOrder.value)
+  } else {
+    console.error('No order data found for:', orderId)
+  }
+  
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  viewingOrder.value = null
+  isModalOpen.value = false
+}
 </script>

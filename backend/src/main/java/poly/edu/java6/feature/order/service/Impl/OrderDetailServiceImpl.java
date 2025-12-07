@@ -22,7 +22,6 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     @Override
     public FetchOrderDetail fetchOrderDetail(String orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
-
         FetchOrderDetail fetchOrderDetail = new FetchOrderDetail();
         fetchOrderDetail.setOrderDate(order.getOrderDate());
         fetchOrderDetail.setPaymentMethod(order.getPaymentMethod().toString());

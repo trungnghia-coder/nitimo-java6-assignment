@@ -6,6 +6,7 @@ import api from '../utils/api'
 const errorMessage = ref('')
 const successMessage = ref('')
 const orderId = ref('')
+const orders = ref([])
 
 export default function useOrder() {
     const router = useRouter()
@@ -42,9 +43,21 @@ export default function useOrder() {
         }
     };
 
+    const fetchOrderHistory = async () => {
+        try {
+            const response = await api.get(`/api/order/fetch-order-history`);
+            orders.value = response.data;
+        } catch (error) {
+            console.error('Error fetching order history:', error);
+            orders.value = null;
+        }
+    };
+
     return {
         successMessage,
         errorMessage,
-        createOrder
+        orders,
+        createOrder,
+        fetchOrderHistory
     }
 }

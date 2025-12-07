@@ -8,6 +8,7 @@ import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.feature.cart.service.CartService;
 import poly.edu.java6.feature.order.dto.CreateOrderRequest;
 import poly.edu.java6.feature.order.dto.CreateOrderResponse;
+import poly.edu.java6.feature.order.dto.FetchOrderHistory;
 import poly.edu.java6.feature.order.repository.OrderDetailRepository;
 import poly.edu.java6.feature.order.repository.OrderRepository;
 import poly.edu.java6.feature.order.service.OrderService;
@@ -19,6 +20,7 @@ import poly.edu.java6.utils.IdUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,5 +120,22 @@ public class OrderServiceImpl implements OrderService {
 
         cartService.deactive(activeCart);
         return ResponseEntity.ok(new CreateOrderResponse(orderId, true, "Create order successful"));
+    }
+
+    @Override
+    public List<FetchOrderHistory> getOrderHistory(String username) {
+        List<Order> order = orderRepository.findOrderByUser_Username(username);
+
+        List<FetchOrderHistory> fetchOrderHistoryList = new ArrayList<>();
+        for (Order o : order) {
+            FetchOrderHistory fh = new FetchOrderHistory();
+            fh.setOrderId(o.getOrderCode());
+            fh.setOrderDate(o.getOrderDate());
+            fh.setOrderAmount(o.getTotalAmount());
+            fh.setPaymentMethod(o.getPaymentMethod().toString());
+            fh.setOrderStatus(o.getStatus().toString());
+            fetchOrderHistoryList.add(fh);
+        }
+        return fetchOrderHistoryList;
     }
 }
