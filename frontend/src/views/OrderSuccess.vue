@@ -37,32 +37,59 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import OrderDetailModal from '../components/OrderDetailModal.vue'
+import useOrderDetail from '../composables/useOrderDetail'
+
+const route = useRoute()
+const { infoOrderDetail, fetchOrderDetail } = useOrderDetail()
 
 const isModalOpen = ref(false)
 const viewingOrder = ref(null)
+const orderId = ref('')
 
-const openOrderDetails = () => {
-  viewingOrder.value = {
-    orderId: "ORD001",
-    orderDate: "2025-12-06",
-    staffName: "Nhân viên A",
-    staffEmail: "staff@email.com",
-    customerName: "Nguyễn Văn A",
-    customerPhone: "0123456789",
-    recipientName: "Nguyễn Văn A",
-    recipientPhone: "0123456789",
-    recipientAddress: "123 Đường ABC, Quận 1, TP.HCM",
-    products: [
-      { name: "Áo thun", quantity: 2, price: 150000 }
-    ],
-    paymentMethod: "COD",
-    shippingFee: 0,
-    discountAmount: 0,
-    subtotal: 300000,
-    total: 300000
+onMounted(async () => {
+  orderId.value = route.query.id
+})
+
+const openOrderDetails = async () => {
+  if (!infoOrderDetail.value) {
+    await fetchOrderDetail(orderId.value)
   }
+  
+  if (infoOrderDetail.value) {
+    const orderData = infoOrderDetail.value 
+    
+    const products = orderData.items ? orderData.items.map(item => ({
+      productName: item.productName || item.name || "N/A",
+      productCode: item.productCode || item.code || "N/A",
+      quantity: item.quantity || 0,
+      unitPrice: item.unitPrice || item.price || 0,
+      discount: item.discountProduct || 0,
+      subTotal: item.subTotal || (item.quantity * (item.unitPrice || item.price || 0))
+    })) : []
+    
+    const subtotal = products.reduce((sum, item) => sum + item.subTotal, 0)
+    
+    viewingOrder.value = {
+      orderId: orderId.value || "N/A",
+      orderDate: orderData.orderDate || new Date().toISOString(),
+      recipientName: orderData.username || "N/A",
+      recipientPhone: orderData.phone || "N/A",
+      recipientAddress: orderData.address || "N/A",
+      products: products || [],
+      paymentMethod: orderData.paymentMethod || "COD",
+      paymentStatus: orderData.paymentStatus || "UNPAID",
+      shippingFee: orderData.shippingFee || 0,
+      discountAmount: orderData.discount || 0,
+      subtotal: subtotal || 0,
+      total: orderData.total || 0
+    }
+    
+    console.log('Viewing order data:', viewingOrder.value)
+  }
+  
   isModalOpen.value = true
 }
 

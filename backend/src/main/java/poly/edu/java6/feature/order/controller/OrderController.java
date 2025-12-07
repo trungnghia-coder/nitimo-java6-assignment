@@ -1,11 +1,13 @@
 package poly.edu.java6.feature.order.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import poly.edu.java6.feature.order.dto.CreateOrderRequest;
+import poly.edu.java6.feature.order.dto.CreateOrderResponse;
 import poly.edu.java6.feature.order.service.OrderService;
 
 import java.security.Principal;
@@ -17,8 +19,8 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/create-order")
-    public void createOrder(@RequestBody CreateOrderRequest createOrderRequest, Principal principal) {
+    public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest createOrderRequest, Principal principal) {
         String name = principal.getName();
-        orderService.createOrder(createOrderRequest, name);
+        return orderService.createOrder(createOrderRequest, name);
     }
 }

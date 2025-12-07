@@ -56,6 +56,7 @@
 }
 
 .modal-body {
+    background: white;
     max-height: 70vh !important;
     overflow-y: auto !important;
 }

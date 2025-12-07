@@ -38,9 +38,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .map(od -> {
                     OrderLineItemDTO itemDto = new OrderLineItemDTO();
                     itemDto.setProductCode(od.getProduct().getProductCode());
-                    itemDto.setProductName(od.getProduct().getName() +  od.getVariant().getSize().getName());
+                    itemDto.setProductName(od.getProduct().getName() + " - " +  od.getVariant().getSize().getName());
                     itemDto.setQuantity(od.getQuantity());
-                    itemDto.setUnitPrice(od.getUnitPrice());
+                    itemDto.setUnitPrice(od.getProduct().getPrice());
                     itemDto.setDiscountProduct(od.getDiscount());
                     itemDto.setSubtotalProduct(od.getSubTotal());
                     return itemDto;

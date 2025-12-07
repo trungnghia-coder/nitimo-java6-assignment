@@ -7,6 +7,23 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NamedEntityGraph(
+    name = "order-with-all-details",
+    attributeNodes = {
+        @NamedAttributeNode("details"),
+        @NamedAttributeNode(value = "user"),
+        @NamedAttributeNode(value = "details", subgraph = "detail-subgraph")
+    },
+    subgraphs = {
+        @NamedSubgraph(
+            name = "detail-subgraph",
+            attributeNodes = {
+                    @NamedAttributeNode("product"),
+                    @NamedAttributeNode("variant")
+            }
+        )
+    }
+)
 @Data
 @Entity
 @Table(name = "orders")

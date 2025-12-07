@@ -5,6 +5,7 @@ import api from '../utils/api'
 
 const errorMessage = ref('')
 const successMessage = ref('')
+const orderId = ref('')
 
 export default function useOrder() {
     const router = useRouter()
@@ -17,18 +18,25 @@ export default function useOrder() {
                 voucherId
             });
 
+            console.log('API Response:', response.data);
+
             if (response.data.message) {
                 successMessage.value = response.data.message
-                setTimeout(() => { successMessage.value = '' }, 3000)
+                orderId.value = response.data.orderID
                 alert(successMessage.value)
-                router.push('/')
+                router.push({
+                    name: 'OrderSuccess',
+                    query: { id: orderId.value }
+                });
+
+                setTimeout(() => { successMessage.value = '' }, 3000)
                 return true
             } else {
-                errorMessage.value = 'Thêm vào giỏ thất bại'
+                errorMessage.value = 'Tạo đơn hàng thất bại'
                 return false
             }
         } catch (error) {
-            console.error('Error add to cart:', error);
+            console.error('Error creating order:', error);
             errorMessage.value = error.response?.data?.error || 'Có lỗi xảy ra'
             return false
         }
