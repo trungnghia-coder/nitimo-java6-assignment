@@ -22,13 +22,27 @@
 /* Bootstrap modal overrides */
 .modal-dialog {
     max-width: 900px !important;
-    margin: 1.75rem auto !important;
+    width: min(100vw, 900px) !important;
+    margin: 1rem auto !important;
 }
 
 .modal-content {
     border-radius: 8px !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
     border: none !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 576px) {
+    .modal-dialog {
+        max-width: 96vw !important;
+        width: 96vw !important;
+        margin: 0.5rem !important;
+    }
+
+    .modal-content {
+        border-radius: 6px !important;
+    }
 }
 
 .modal-header {
@@ -92,7 +106,26 @@
 /* Table customization */
 .table-responsive {
     border-radius: 8px;
-    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .table {
@@ -100,31 +133,19 @@
     margin-bottom: 0 !important;
 }
 
-.table thead {
+.table thead.sticky-top {
     position: sticky;
     top: 0;
     z-index: 10;
+    background-color: #f8f9fa;
 }
 
 .table tbody {
     font-size: 0.85rem;
 }
 
-.table tbody::-webkit-scrollbar {
-    width: 6px;
-}
-
-.table tbody::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.table tbody::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
-}
-
-.table tbody::-webkit-scrollbar-thumb:hover {
-    background: #999;
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.025);
 }
 
 /* Remove old product-table styles since we're using Bootstrap table */

@@ -1,11 +1,13 @@
 package poly.edu.java6.feature.order.service.Impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.feature.cart.service.CartService;
 import poly.edu.java6.feature.order.dto.CreateOrderRequest;
+import poly.edu.java6.feature.order.dto.CreateOrderResponse;
 import poly.edu.java6.feature.order.repository.OrderDetailRepository;
 import poly.edu.java6.feature.order.repository.OrderRepository;
 import poly.edu.java6.feature.order.service.OrderService;
@@ -17,7 +19,6 @@ import poly.edu.java6.utils.IdUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void createOrder(CreateOrderRequest createOrderRequest, String username) {
+    public ResponseEntity<CreateOrderResponse> createOrder(CreateOrderRequest createOrderRequest, String username) {
         User user = authService.findUserByUsername(username);
         Cart activeCart = cartService.findByUserAndStatus(username);
         if (activeCart == null) {
@@ -116,5 +117,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         cartService.deactive(activeCart);
+        return ResponseEntity.ok(new CreateOrderResponse(orderId, true, "Create order successful"));
     }
 }

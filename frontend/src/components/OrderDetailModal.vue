@@ -1,6 +1,6 @@
 <template>
   <div v-if="isVisible" class="modal-backdrop-custom show" @click.self="$emit('close')">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header bg-dark text-white">
           <h5 class="modal-title">Order Details: {{ orderId || 'N/A' }}</h5>
@@ -61,9 +61,9 @@
           </div>
 
           <!-- Products Table -->
-          <div class="table-responsive">
+          <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
             <table class="table table-hover table-bordered align-middle mb-0">
-              <thead class="table-light">
+              <thead class="table-light sticky-top">
                 <tr class="small">
                   <th style="width: 35%">Product</th>
                   <th style="width: 13%" class="text-center">Quantity</th>
@@ -72,13 +72,13 @@
                   <th style="width: 18%" class="text-end">Subtotal</th>
                 </tr>
               </thead>
-              <tbody style="max-height: 200px; overflow-y: auto; display: block;">
+              <tbody>
                 <tr v-if="!products || products.length === 0">
                   <td colspan="5" class="text-center text-muted py-4">
                     <i class="bi bi-inbox"></i> No products found for this order.
                   </td>
                 </tr>
-                <tr v-else v-for="(item, i) in products" :key="item.productCode || i" style="display: table; width: 100%; table-layout: fixed;">
+                <tr v-else v-for="(item, i) in products" :key="item.productCode || i">
                   <td>
                     <div class="fw-semibold small">{{ item.productName || 'N/A' }}</div>
                     <div class="text-muted" style="font-size: 0.75rem;">Code: {{ item.productCode || 'N/A' }}</div>

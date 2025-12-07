@@ -3,6 +3,7 @@ package poly.edu.java6.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
