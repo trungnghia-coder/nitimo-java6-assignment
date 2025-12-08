@@ -82,4 +82,10 @@ public class CartItemController {
         cartItemService.updateQuantityFromCart(username, variantId, quantity);
         return ResponseEntity.ok("Successfully updated item quantity");
     }
+
+    @GetMapping("/is-empty")
+    public Boolean checkCartEmpty(Principal principal){
+        String username = principal.getName();
+        return cartItemService.checkCartEmpty(username);
+    }
 }

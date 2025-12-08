@@ -12,4 +12,5 @@ public interface CartItemService {
     void deleteItemFromCart (String username, RemoveItemRequest removeItemRequest);
     void deleteALlItemFromCart(String username);
     void updateQuantityFromCart(String username, int variantId, int quantity);
+    Boolean checkCartEmpty(String username);
 }

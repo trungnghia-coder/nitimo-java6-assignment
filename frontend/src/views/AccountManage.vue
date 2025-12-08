@@ -28,6 +28,7 @@
             </li>
 
             <li 
+              v-if="userStore.isAdmin"
               :class="['sidebar-item', activeTab === 'management' ? 'active' : '']" 
               @click="goToManagement"
             >
@@ -213,7 +214,9 @@ import {
   selectedWard,
   streetAddress,
 } from '../composables/locationPiker'
+import { useUserStore } from '../stores/userStore';
 
+const userStore = useUserStore();
 const activeTab = ref('info')
 const router = useRouter()
 

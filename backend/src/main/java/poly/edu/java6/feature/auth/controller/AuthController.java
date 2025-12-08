@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import poly.edu.java6.feature.auth.dto.login.LoginResponse;
@@ -72,7 +71,7 @@ public class AuthController {
         jwtCookie.setAttribute("SameSite", "Lax");
         jwtCookie.setSecure(true);
         response.addCookie(jwtCookie);
-        return ResponseEntity.ok(new LoginResponse(true, "Login successful", token));
+        return ResponseEntity.ok(new LoginResponse(true, "Login successful", token, user.getRole().toString()));
     }
 
     @PostMapping("/logup")

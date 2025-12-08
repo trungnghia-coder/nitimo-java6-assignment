@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../utils/api'
+import { useUserStore } from '../stores/userStore';
 
 // Check auth status from backend
 export async function isUserLoggedIn() {
@@ -17,6 +18,7 @@ export function useAuthHandle() {
     const router = useRouter()
     const username = ref('')
     const password = ref('')
+    const role = ref('')
     const rememberMe = ref(false)
     const errorMessage = ref('')
     const successMessage = ref('')
@@ -24,6 +26,7 @@ export function useAuthHandle() {
     const oldPassword = ref('')
     const newPassword = ref('')
     const confirmPassword = ref('')
+    const userStore = useUserStore();
 
 
     const login = async () => {
@@ -34,6 +37,9 @@ export function useAuthHandle() {
                 rememberMe: rememberMe.value
             })
             if (res.data.success) {
+                const token = res.data.token;
+                role.value = res.data.role
+                userStore.setRoleAndToken(token, role.value);
                 alert('Login successful!')
                 router.push('/')
             } else {
@@ -123,6 +129,7 @@ export function useAuthHandle() {
     const logout = async () => {
         try {
             await api.post('/api/auth/logout')
+            userStore.clearUserData();
             successMessage.value = 'Logged out successfully!'
             setTimeout(() => { successMessage.value = '' }, 3000)
             router.push('/auth')

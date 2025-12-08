@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../utils/api'
-
+import { useFlowStore } from '../stores/userStore';
 
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -10,6 +10,7 @@ const orders = ref([])
 
 export default function useOrder() {
     const router = useRouter()
+    const flowStore = useFlowStore();
 
     const createOrder = async (shippingAddress, paymentMethod, voucherId) => {
         try {
@@ -24,12 +25,12 @@ export default function useOrder() {
             if (response.data.message) {
                 successMessage.value = response.data.message
                 orderId.value = response.data.orderID
+                flowStore.setOrderSuccessAccess(true);
                 alert(successMessage.value)
                 router.push({
                     name: 'OrderSuccess',
                     query: { id: orderId.value }
                 });
-
                 setTimeout(() => { successMessage.value = '' }, 3000)
                 return true
             } else {

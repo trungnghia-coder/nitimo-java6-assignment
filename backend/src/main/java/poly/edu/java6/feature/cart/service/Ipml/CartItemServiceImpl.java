@@ -173,4 +173,19 @@ public class CartItemServiceImpl implements CartItemService {
 
         cartItemRepository.save(item);
     }
+
+    @Override
+    public Boolean checkCartEmpty(String username) {
+        User user = authService.findUserByUsername(username);
+        Optional<Cart> optionalCart = cartRepository.findByUserAndStatus(user, Cart.CartStatus.ACTIVE);
+
+        if (optionalCart.isEmpty()) {
+            return true;
+        }
+
+        Cart cart = optionalCart.get();
+        long itemCount = cartItemRepository.countByCart(cart);
+
+        return itemCount == 0;
+    }
 }

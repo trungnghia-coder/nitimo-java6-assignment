@@ -6,12 +6,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import poly.edu.java6.model.Cart;
 import poly.edu.java6.model.CartItem;
+import poly.edu.java6.model.Product;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CartItemRepository extends JpaRepository<CartItem, String> {
     Optional<CartItem> findByCart_CartCodeAndVariant_VariantId(String cartCode, Integer variantId);
+    long countByCart(Cart cart);
 
     @Transactional
     void deleteByCart_CartCodeAndVariant_VariantId(String cartCode, Integer variantId);
