@@ -32,64 +32,27 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label class="form-label">Category</label>
-                    <input 
-                      v-model="productForm.category" 
-                      type="text" 
-                      class="form-control" 
-                      placeholder="Enter category"
-                      required
-                    />
+                    <select v-model="currentProduct.categoryCode">
+                        <option value="">-- Chọn loại hàng --</option>
+                        <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">{{ category.categoryName }}</option>
+                    </select>
                   </div>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label class="form-label">Price</label>
+                    <label class="form-label">Price (₫)</label>
                     <input 
                       v-model="productForm.price" 
                       type="number" 
                       class="form-control" 
-                      placeholder="0.00"
-                      min="0"
-                      step="0.01"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group mb-3">
-                    <label class="form-label">Stock</label>
-                    <input 
-                      v-model="productForm.stock" 
-                      type="number" 
-                      class="form-control" 
                       placeholder="0"
                       min="0"
+                      step="1000"
                       required
                     />
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group mb-3">
-                    <label class="form-label">SKU</label>
-                    <input 
-                      v-model="productForm.sku" 
-                      type="text" 
-                      class="form-control" 
-                      placeholder="SKU"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group mb-3">
-                    <label class="form-label">Status</label>
-                    <select v-model="productForm.status" class="form-control" required>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
                   </div>
                 </div>
               </div>
@@ -104,14 +67,123 @@
                 ></textarea>
               </div>
 
+              <!-- Product Images Upload -->
               <div class="form-group mb-4">
-                <label class="form-label">Image URL</label>
+                <label class="form-label">Product Images</label>
                 <input 
-                  v-model="productForm.imageUrl" 
-                  type="url" 
-                  class="form-control" 
-                  placeholder="https://..."
+                  type="file" 
+                  class="form-control mb-2" 
+                  @change="handleImageUpload"
+                  accept="image/*"
+                  multiple
                 />
+                <small class="text-muted">You can select multiple images</small>
+                
+                <!-- Preview uploaded images -->
+                <div v-if="productForm.images && productForm.images.length > 0" class="mt-3">
+                  <div class="row g-2">
+                    <div v-for="(image, index) in productForm.images" :key="index" class="col-auto">
+                      <div class="position-relative" style="width: 100px; height: 100px;">
+                        <img 
+                          :src="image" 
+                          class="img-thumbnail" 
+                          style="width: 100%; height: 100%; object-fit: cover;"
+                          alt="Product preview"
+                        />
+                        <button 
+                          type="button"
+                          class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                          style="width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                          @click="removeImage(index)"
+                          title="Delete image"
+                        >
+                          <i class="fas fa-trash" style="font-size: 12px;"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Variants (Size & Stock) -->
+              <div class="form-group mb-4">
+                <label class="form-label fw-bold">Product Variants (Size & Stock)</label>
+                <div class="card border">
+                  <div class="card-body">
+                    <!-- Add Size Button -->
+                    <div class="mb-3">
+                      <div class="input-group" style="max-width: 400px;">
+                        <input 
+                          v-model="newVariantSize" 
+                          type="text" 
+                          class="form-control" 
+                          placeholder="Enter size (e.g., M, L, XL)"
+                          @keyup.enter="addVariant"
+                        />
+                        <button 
+                          type="button" 
+                          class="btn btn-orange"
+                          @click="addVariant"
+                        >
+                          <i class="fas fa-plus"></i> Add Size
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Variants Table -->
+                    <div v-if="productForm.variants && productForm.variants.length > 0" class="table-responsive">
+                      <table class="table table-bordered table-sm">
+                        <thead class="table-light">
+                          <tr>
+                            <th width="40%">Size</th>
+                            <th width="40%">Stock Quantity</th>
+                            <th width="20%">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(variant, index) in productForm.variants" :key="index">
+                            <td>
+                              <input 
+                                v-model="variant.size" 
+                                type="text" 
+                                class="form-control form-control-sm"
+                                placeholder="Size"
+                              />
+                            </td>
+                            <td>
+                              <input 
+                                v-model.number="variant.stock" 
+                                type="number" 
+                                class="form-control form-control-sm"
+                                placeholder="Stock"
+                                min="0"
+                              />
+                            </td>
+                            <td class="text-center">
+                              <button 
+                                type="button"
+                                class="btn btn-danger btn-sm"
+                                @click="removeVariant(index)"
+                                title="Delete variant"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="alert alert-info mb-0">
+                        <small>
+                          <i class="fas fa-info-circle"></i> 
+                          Total stock: <strong>{{ calculateTotalStock() }}</strong> units
+                        </small>
+                      </div>
+                    </div>
+                    <div v-else class="text-muted text-center py-3">
+                      <i class="fas fa-box-open"></i> No variants added yet
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="form-actions">
@@ -130,54 +202,80 @@
         <div class="table-container card border">
           <div class="card-body">
             <button class="btn btn-orange fw-bold mb-3" @click="showAddProductForm = !showAddProductForm">
-              <i class="fas fa-plus"></i> Add New User
+              <i class="fas fa-plus"></i> Add New Product
             </button>
             <div class="table-responsive">
               <table class="table table-hover">
                 <thead class="table-light">
                   <tr>
-                    <th>Image</th>
+                    <th>Images</th>
                     <th>Product Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
                     <th>Stock</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Variants</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="product in products" :key="product.id">
-                    <td>
-                      <img 
-                        :src="product.imageUrl || 'https://via.placeholder.com/50'" 
-                        :alt="product.name"
-                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
-                      />
+                  <!-- Loading state -->
+                  <tr v-if="loading">
+                    <td colspan="6" class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      <p class="mt-2 mb-0 text-muted">Loading products...</p>
                     </td>
-                    <td class="fw-semibold">{{ product.name }}</td>
-                    <td>{{ product.category }}</td>
-                    <td class="fw-bold">{{ product.price.toLocaleString() }}₫</td>
-                    <td>
-                      <span :class="['badge', product.stock > 0 ? 'bg-success' : 'bg-danger']">
-                        {{ product.stock }}
-                      </span>
+                  </tr>
+                  <!-- Empty state -->
+                  <tr v-else-if="products.length === 0">
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      <i class="fas fa-box-open fa-3x mb-3"></i>
+                      <p class="mb-0">No products found</p>
                     </td>
+                  </tr>
+                  <!-- Product rows -->
+                  <tr v-else v-for="product in products" :key="product.productId">
                     <td>
-                      <span :class="['badge', product.status === 'active' ? 'bg-success' : 'bg-secondary']">
-                        {{ product.status }}
-                      </span>
+                      <!-- Display multiple images -->
+                      <div class="d-flex gap-1">
+                          <img 
+
+                            :key="idx"
+                            :src="product.productImage" 
+                            :alt="product.productName"
+                            style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
+                          />
+                      </div>
                     </td>
+                    <td class="fw-semibold">{{ product.productName }}</td>
+                    <td>{{ product.inventory }}</td>
+                    <td>{{ product.categoryName }}</td>
                     <td>
                       <button class="btn btn-sm btn-warning me-2" @click="editProduct(product)">
                         <i class="fas fa-edit"></i> Edit
                       </button>
-                      <button class="btn btn-sm btn-danger" @click="deleteProduct(product.id)">
+                      <button class="btn btn-sm btn-danger" @click="handleDeleteProduct(product.id)">
                         <i class="fas fa-trash"></i> Delete
                       </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+              
+              <!-- Infinite Scroll Observer -->
+              <div ref="scrollObserver" style="height: 20px;"></div>
+              
+              <!-- Loading more indicator -->
+              <div v-if="loading && products.length > 0" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading more...</span>
+                </div>
+                <small class="text-muted ms-2">Loading more products...</small>
+              </div>
+              
+              <!-- End of list indicator -->
+              <div v-if="!hasMore && products.length > 0" class="text-center py-3 text-muted">
+                <small><i class="fas fa-check-circle"></i> All products loaded</small>
+              </div>
             </div>
           </div>
         </div>
@@ -565,15 +663,62 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ManageMenu from '../components/ManageMenu.vue'
+import useCategory from '../composables/useCategory'
+import useProductManagement from '../composables/management/useProductManagement'
 import '../assets/css/manage.css'
 
 const router = useRouter()
 const currentMenu = ref('products')
-const showAddForm = ref(false)
 const editingId = ref(null)
+
+const { categories } = useCategory()
+
+// Product Management API
+const {
+  products,
+  loading,
+  hasMore,
+  currentProduct,
+  fetchProducts,
+  fetchProductDetail,
+  createProduct,
+  deleteProduct: apiDeleteProduct
+} = useProductManagement()
+
+let observer = null;
+const scrollObserver = ref(null);
+
+onMounted(() => {
+  if (currentMenu.value === 'products') {
+    fetchProducts();
+  }
+  
+  observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && hasMore.value && !loading.value) {
+      console.log('Loading more products...');
+      fetchProducts(); 
+    }
+  }, {
+    rootMargin: '100px'
+  });
+
+  if (scrollObserver.value) {
+    observer.observe(scrollObserver.value);
+  }
+});
+
+onUnmounted(() => {
+  if (observer && scrollObserver.value) {
+    observer.unobserve(scrollObserver.value);
+  }
+});
+
+
+// Store uploaded image files (not base64)
+const uploadedImageFiles = ref([])
 
 // Form visibility refs for each section
 const showAddProductForm = ref(false)
@@ -586,17 +731,23 @@ const editingUserId = ref(null)
 const editingCustomerId = ref(null)
 const editingOrderId = ref(null)
 
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('vi-VN').format(price);
+}
+
 // Product form data
 const productForm = reactive({
   name: '',
   category: '',
   price: 0,
-  stock: 0,
-  sku: '',
-  status: 'active',
   description: '',
-  imageUrl: ''
+  images: [], // Preview URLs (base64)
+  variants: [] // Product variants (size + stock)
 })
+
+// New: Temporary variable for adding new variant
+const newVariantSize = ref('')
 
 // User form data
 const userForm = reactive({
@@ -623,32 +774,6 @@ const orderForm = reactive({
   status: 'pending',
   paymentStatus: 'unpaid'
 })
-
-// Mock products data
-const products = ref([
-  {
-    id: 1,
-    name: 'Product 1',
-    category: 'Electronics',
-    price: 500000,
-    stock: 50,
-    sku: 'SKU001',
-    status: 'active',
-    description: 'High quality product',
-    imageUrl: 'https://via.placeholder.com/100'
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    category: 'Clothing',
-    price: 200000,
-    stock: 100,
-    sku: 'SKU002',
-    status: 'active',
-    description: 'Comfortable and stylish',
-    imageUrl: 'https://via.placeholder.com/100'
-  }
-])
 
 // Mock users data
 const users = ref([
@@ -735,45 +860,86 @@ const orders = ref([
 ])
 
 const handleSaveProduct = async () => {
-  if (editingId.value) {
-    // Update existing product
-    const index = products.value.findIndex(p => p.id === editingId.value)
-    if (index !== -1) {
-      products.value[index] = {
-        ...products.value[index],
-        ...productForm
-      }
+  // Validate variants
+  if (productForm.variants.length > 0) {
+    const hasEmptySize = productForm.variants.some(v => !v.size.trim())
+    if (hasEmptySize) {
+      alert('Please fill in all size names')
+      return
     }
-  } else {
-    // Add new product
-    products.value.push({
-      id: Math.max(...products.value.map(p => p.id), 0) + 1,
-      ...productForm
-    })
   }
   
-  alert(editingId.value ? 'Product updated!' : 'Product added!')
-  resetForm()
+  try {
+    loading.value = true
+    
+    // Prepare product data for API
+    const productData = {
+      name: productForm.name,
+      category: productForm.category,
+      price: productForm.price,
+      description: productForm.description,
+      variants: productForm.variants
+    }
+    
+    // Call API
+    const response = await createProduct(productData, uploadedImageFiles.value)
+    
+    alert(response.message || 'Product saved successfully!')
+    resetForm()
+    
+    // Reload products
+    products.value = []
+    await fetchProducts()
+  } catch (error) {
+    alert('Error saving product: ' + (error.response?.data?.message || error.message))
+  } finally {
+    loading.value = false
+  }
 }
 
-const editProduct = (product) => {
-  editingId.value = product.id
-  productForm.name = product.name
-  productForm.category = product.category
-  productForm.price = product.price
-  productForm.stock = product.stock
-  productForm.sku = product.sku
-  productForm.status = product.status
-  productForm.description = product.description
-  productForm.imageUrl = product.imageUrl
-  showAddForm.value = true
-  window.scrollTo(0, 0)
+const editProduct = async (product) => {
+  try {
+    // Fetch full product detail
+    const detail = await fetchProductDetail(product.id)
+    
+    editingId.value = product.id
+    productForm.name = detail.name || ''
+    productForm.category = detail.category || ''
+    productForm.price = detail.price || 0
+    productForm.description = detail.description || ''
+    
+    // Load images
+    if (detail.images && Array.isArray(detail.images)) {
+      productForm.images = [...detail.images]
+    } else {
+      productForm.images = []
+    }
+    
+    // Load variants
+    if (detail.variants && Array.isArray(detail.variants)) {
+      productForm.variants = JSON.parse(JSON.stringify(detail.variants))
+    } else {
+      productForm.variants = []
+    }
+    
+    uploadedImageFiles.value = []
+    showAddProductForm.value = true
+    window.scrollTo(0, 0)
+  } catch (error) {
+    alert('Error loading product: ' + error.message)
+  }
 }
 
-const deleteProduct = (id) => {
-  if (confirm('Are you sure you want to delete this product?')) {
-    products.value = products.value.filter(p => p.id !== id)
-    alert('Product deleted!')
+const handleDeleteProduct = async (id) => {
+  if (!confirm('Are you sure you want to delete this product?')) {
+    return
+  }
+  
+  try {
+    await apiDeleteProduct(id)
+    alert('Product deleted successfully!')
+  } catch (error) {
+    alert('Error deleting product: ' + (error.response?.data?.message || error.message))
   }
 }
 
@@ -934,13 +1100,76 @@ const resetForm = () => {
   productForm.name = ''
   productForm.category = ''
   productForm.price = 0
-  productForm.stock = 0
-  productForm.sku = ''
-  productForm.status = 'active'
   productForm.description = ''
-  productForm.imageUrl = ''
+  productForm.images = []
+  productForm.variants = []
+  uploadedImageFiles.value = []
+  newVariantSize.value = ''
   editingId.value = null
   showAddProductForm.value = false
+}
+
+// Image upload functions
+const handleImageUpload = (event) => {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+
+  Array.from(files).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      // Store actual file for upload
+      uploadedImageFiles.value.push(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        productForm.images.push(e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+  
+  // Clear input to allow re-upload same file
+  event.target.value = ''
+}
+
+const removeImage = (index) => {
+  productForm.images.splice(index, 1)
+  uploadedImageFiles.value.splice(index, 1)
+}
+
+// Variant management functions
+const addVariant = () => {
+  if (!newVariantSize.value.trim()) {
+    alert('Please enter a size')
+    return
+  }
+  
+  // Check if size already exists
+  const existingVariant = productForm.variants.find(
+    v => v.size.toLowerCase() === newVariantSize.value.trim().toLowerCase()
+  )
+  
+  if (existingVariant) {
+    alert('This size already exists')
+    return
+  }
+  
+  productForm.variants.push({
+    size: newVariantSize.value.trim(),
+    stock: 0
+  })
+  
+  newVariantSize.value = ''
+}
+
+const removeVariant = (index) => {
+  productForm.variants.splice(index, 1)
+}
+
+const calculateTotalStock = () => {
+  return productForm.variants.reduce((total, variant) => {
+    return total + (parseInt(variant.stock) || 0)
+  }, 0)
 }
 
 const handleMenuSelect = (menuId) => {

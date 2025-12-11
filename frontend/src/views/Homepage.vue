@@ -56,7 +56,7 @@
                     <img 
                       v-for="(image, index) in getSecondaryImages(product.images)" 
                       :key="index"
-                      :src="image.imageUrl" 
+                      :src="getFullImageUrl(image.imageUrl)" 
                       :alt="`${product.productName} - Image ${index + 1}`" 
                       class="avatar">
                   </div>
@@ -98,16 +98,30 @@
 import '../assets/css/homepage.css'
 import { ref, onMounted, onUnmounted } from 'vue'
 import useProduct from '../composables/useProduct'
+import api from '../utils/api';
+const BASE_URL = api.defaults.baseURL;
 
 const { products, loading, hasMore, fetchProducts } = useProduct();
 const scrollObserver = ref(null);
+
+const getFullImageUrl = (relativeUrl) => {
+    if (!relativeUrl) {
+        return 'https://via.placeholder.com/450';
+    }
+    
+    if (relativeUrl.startsWith('/images/')) {
+        return BASE_URL + relativeUrl; 
+    } 
+    return relativeUrl;
+};
 
 const getPrimaryImage = (images) => {
   if (!images || images.length === 0) {
     return 'https://via.placeholder.com/450';
   }
   const primaryImage = images.find(img => img.isPrimary);
-  return primaryImage ? primaryImage.imageUrl : images[0].imageUrl;
+  const relativeUrl = primaryImage ? primaryImage.imageUrl : images[0].imageUrl;
+  return getFullImageUrl(relativeUrl);
 }
 
 const getSecondaryImages = (images) => {

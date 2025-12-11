@@ -3,10 +3,13 @@ package poly.edu.java6.feature.product.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import poly.edu.java6.feature.product.repository.ProductVariantRepository;
+import poly.edu.java6.model.Product;
 import poly.edu.java6.model.ProductVariant;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ProductVariantService {

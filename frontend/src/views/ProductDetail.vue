@@ -156,6 +156,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import useProduct from '../composables/useProduct'
 import useCart from '../composables/useCart'
+import api from '../utils/api'; 
+const BASE_URL = api.defaults.baseURL;
 
 const { productDetail, loadingDetail, fetchProductDetail } = useProduct();
 const route = useRoute()
@@ -165,6 +167,16 @@ const { addToCart, successMessage, cart } = useCart();
 const mainImage = ref('')
 const selectedSize = ref()
 const quantity = ref(1)
+
+const getFullImageUrl = (relativeUrl) => {
+    if (!relativeUrl) {
+        return 'https://via.placeholder.com/450';
+    }
+    if (relativeUrl.startsWith('/images/')) {
+        return BASE_URL + relativeUrl; 
+    } 
+    return relativeUrl;
+};
 
 // Computed: Chuyển đổi productDetail từ backend thành format cho template
 const product = computed(() => {
@@ -186,7 +198,7 @@ const product = computed(() => {
   const detail = productDetail.value;
   
   // Lấy danh sách ảnh từ images array
-  const imageList = detail.images?.map(img => img.imageUrl) || [];
+  const imageList = detail.images?.map(img => getFullImageUrl(img.imageUrl)) || [];
   
   // Lấy danh sách size từ productVariant (lọc trùng lặp)
   const uniqueSizeIds = [...new Set(detail.productVariant?.map(v => v.sizeId) || [])];
