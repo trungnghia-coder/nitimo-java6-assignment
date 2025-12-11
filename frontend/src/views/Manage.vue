@@ -32,7 +32,7 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label class="form-label">Category</label>
-                    <select v-model="currentProduct.categoryCode">
+                    <select v-model="productForm.category">
                         <option value="">-- Chọn loại hàng --</option>
                         <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">{{ category.categoryName }}</option>
                     </select>
@@ -41,11 +41,25 @@
               </div>
 
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label class="form-label">Price (₫)</label>
                     <input 
                       v-model="productForm.price" 
+                      type="number" 
+                      class="form-control" 
+                      placeholder="0"
+                      min="0"
+                      step="1000"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Discount (₫)</label>
+                    <input 
+                      v-model="productForm.discount" 
                       type="number" 
                       class="form-control" 
                       placeholder="0"
@@ -97,7 +111,10 @@
                           @click="removeImage(index)"
                           title="Delete image"
                         >
-                          <i class="fas fa-trash" style="font-size: 12px;"></i>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -114,18 +131,18 @@
                     <div class="mb-3">
                       <div class="input-group" style="max-width: 400px;">
                         <input 
-                          v-model="newVariantSize" 
                           type="text" 
                           class="form-control" 
                           placeholder="Enter size (e.g., M, L, XL)"
                           @keyup.enter="addVariant"
+                          v-model="newVariantSize"
                         />
                         <button 
                           type="button" 
                           class="btn btn-orange"
                           @click="addVariant"
                         >
-                          <i class="fas fa-plus"></i> Add Size
+                        Add Size
                         </button>
                       </div>
                     </div>
@@ -152,7 +169,7 @@
                             </td>
                             <td>
                               <input 
-                                v-model.number="variant.stock" 
+                                v-model="variant.stock" 
                                 type="number" 
                                 class="form-control form-control-sm"
                                 placeholder="Stock"
@@ -166,7 +183,10 @@
                                 @click="removeVariant(index)"
                                 title="Delete variant"
                               >
-                                <i class="fas fa-trash"></i>
+                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                              </svg>
                               </button>
                             </td>
                           </tr>
@@ -240,7 +260,7 @@
                           <img 
 
                             :key="idx"
-                            :src="product.productImage" 
+                            :src="getFullImageUrl(product.productImage)" 
                             :alt="product.productName"
                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
                           />
@@ -250,10 +270,10 @@
                     <td>{{ product.inventory }}</td>
                     <td>{{ product.categoryName }}</td>
                     <td>
-                      <button class="btn btn-sm btn-warning me-2" @click="editProduct(product)">
+                      <button class="btn btn-sm btn-warning me-2" @click="editProduct(product.productId)">
                         <i class="fas fa-edit"></i> Edit
                       </button>
-                      <button class="btn btn-sm btn-danger" @click="handleDeleteProduct(product.id)">
+                      <button class="btn btn-sm btn-danger" @click="handleDeleteProduct(product.productId)">
                         <i class="fas fa-trash"></i> Delete
                       </button>
                     </td>
@@ -261,20 +281,38 @@
                 </tbody>
               </table>
               
-              <!-- Infinite Scroll Observer -->
-              <div ref="scrollObserver" style="height: 20px;"></div>
-              
-              <!-- Loading more indicator -->
-              <div v-if="loading && products.length > 0" class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                  <span class="visually-hidden">Loading more...</span>
+              <!-- Pagination Controls -->
+              <div v-if="totalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                  Showing {{ products.length }} of {{ totalElements }} products (Page {{ currentPage + 1 }} / {{ totalPages }})
                 </div>
-                <small class="text-muted ms-2">Loading more products...</small>
-              </div>
-              
-              <!-- End of list indicator -->
-              <div v-if="!hasMore && products.length > 0" class="text-center py-3 text-muted">
-                <small><i class="fas fa-check-circle"></i> All products loaded</small>
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: currentPage === 0 }">
+                      <button class="page-link" @click="prevPage" :disabled="currentPage === 0">
+                        Previous
+                      </button>
+                    </li>
+                    
+                    <!-- Page numbers -->
+                    <li 
+                      v-for="page in totalPages" 
+                      :key="page" 
+                      class="page-item" 
+                      :class="{ active: currentPage === page - 1 }"
+                    >
+                      <button class="page-link" @click="goToPage(page - 1)">
+                        {{ page }}
+                      </button>
+                    </li>
+                    
+                    <li class="page-item" :class="{ disabled: currentPage >= totalPages - 1 }">
+                      <button class="page-link" @click="nextPage" :disabled="currentPage >= totalPages - 1">
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
               </div>
             </div>
           </div>
@@ -669,6 +707,8 @@ import ManageMenu from '../components/ManageMenu.vue'
 import useCategory from '../composables/useCategory'
 import useProductManagement from '../composables/management/useProductManagement'
 import '../assets/css/manage.css'
+import api from '../utils/api';
+const BASE_URL = api.defaults.baseURL;
 
 const router = useRouter()
 const currentMenu = ref('products')
@@ -680,45 +720,254 @@ const { categories } = useCategory()
 const {
   products,
   loading,
-  hasMore,
-  currentProduct,
+  currentPage,
+  totalPages,
+  totalElements,
+  updateProduct,
   fetchProducts,
   fetchProductDetail,
   createProduct,
-  deleteProduct: apiDeleteProduct
+  deleteProduct,
+  goToPage,
+  nextPage,
+  prevPage
 } = useProductManagement()
-
-let observer = null;
-const scrollObserver = ref(null);
 
 onMounted(() => {
   if (currentMenu.value === 'products') {
-    fetchProducts();
+    fetchProducts(0);
+  }
+});
+
+const getFullImageUrl = (relativeUrl) => {
+    if (!relativeUrl) {
+        return 'https://via.placeholder.com/450';
+    }
+    
+    if (relativeUrl.startsWith('/images/')) {
+        return BASE_URL + relativeUrl; 
+    } 
+    return relativeUrl;
+};
+
+const handleSaveProduct = async () => {
+  try {
+    console.log('handleSaveProduct called, editingId:', editingId.value) // Debug
+    
+    if (editingId.value) {
+      console.log('Calling UPDATE') // Debug
+      await handleUpdateProduct()
+    } else {
+      console.log('Calling CREATE') // Debug
+      await handleCreateProduct()
+    }
+  } catch (error) {
+    console.error('Error in handleSaveProduct:', error)
+    alert('Error: ' + error.message)
+  }
+}
+
+const handleCreateProduct = async () => {
+  try {
+    loading.value = true
+    const productData = {
+      productName: productForm.name,
+      categoryCode: productForm.category,
+      price: productForm.price,
+      discount: productForm.discount,
+      description: productForm.description,
+      productVariantRequest: productForm.variants.map(v => ({
+        size: v.size,
+        stockQuantity: v.stock
+      }))
+    }
+    const response = await createProduct(productData, uploadedImageFiles.value)
+    
+    alert(response.message)
+    resetForm()
+  } catch (error) {
+    alert('Error: ' + error.message)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleUpdateProduct = async () => {
+  try {
+    console.log('handleUpdateProduct called') // Debug
+    console.log('editingId:', editingId.value) // Debug
+    console.log('productForm:', productForm) // Debug
+    
+    loading.value = true
+    const productData = {
+      productName: productForm.name,
+      categoryCode: productForm.category,
+      price: productForm.price,
+      discount: productForm.discount,
+      description: productForm.description,
+      productVariantRequest: productForm.variants.map(v => ({
+        variatId: v.variantId,
+        sizeId: v.sizeId,
+        stockQuantity: v.stock
+      }))
+    }
+    
+    console.log('productData:', productData) // Debug
+    console.log('uploadedImageFiles:', uploadedImageFiles.value) // Debug
+    
+    const response = await updateProduct(editingId.value, productData, uploadedImageFiles.value)
+    
+    console.log('Update response:', response) // Debug
+    alert(response.message || 'Product updated successfully!')
+    resetForm()
+    
+    // Reload lại trang hiện tại
+    await fetchProducts(currentPage.value)
+  } catch (error) {
+    console.error('Update error:', error) // Debug
+    alert('Error: ' + (error.response?.data?.message || error.message))
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeleteProduct = async (productCode) => {
+  if (!confirm('Are you sure you want to delete this product?')) {
+    return
   }
   
-  observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && hasMore.value && !loading.value) {
-      console.log('Loading more products...');
-      fetchProducts(); 
-    }
-  }, {
-    rootMargin: '100px'
-  });
-
-  if (scrollObserver.value) {
-    observer.observe(scrollObserver.value);
+  try {
+    const response = await deleteProduct(productCode)
+    alert(response.message || 'Product deleted successfully!')
+  } catch (error) {
+    alert('Error: ' + (error.response?.data?.message || error.message))
   }
-});
+}
 
-onUnmounted(() => {
-  if (observer && scrollObserver.value) {
-    observer.unobserve(scrollObserver.value);
-  }
-});
-
-
-// Store uploaded image files (not base64)
 const uploadedImageFiles = ref([])
+
+const productForm = reactive({
+  name: '',
+  category: '',
+  price: 0,
+  description: '',
+  images: [],    
+  variants: []   
+})
+
+const resetForm = () => {
+  productForm.name = ''
+  productForm.category = ''
+  productForm.price = 0
+  productForm.discount = 0
+  productForm.description = ''
+  productForm.images = []
+  productForm.variants = []
+  uploadedImageFiles.value = []
+  newVariantSize.value = ''
+  editingId.value = null
+  showAddProductForm.value = false
+}
+
+const handleImageUpload = (event) => {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+
+  Array.from(files).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      uploadedImageFiles.value.push(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        productForm.images.push(e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+  event.target.value = ''
+}
+
+const removeImage = (index) => {
+  productForm.images.splice(index, 1)
+  uploadedImageFiles.value.splice(index, 1)
+}
+
+const addVariant = () => {
+  if (!newVariantSize.value.trim()) {
+    alert('Please enter a size')
+    return
+  }
+  
+  const existingVariant = productForm.variants.find(
+    v => v.size.toLowerCase() === newVariantSize.value.trim().toLowerCase()
+  )
+  
+  if (existingVariant) {
+    alert('This size already exists')
+    return
+  }
+  
+  productForm.variants.push({
+    size: newVariantSize.value.trim(),
+    stock: 0
+  })
+  
+  newVariantSize.value = ''
+}
+
+const removeVariant = (index) => {
+  productForm.variants.splice(index, 1)
+}
+
+const calculateTotalStock = () => {
+  return productForm.variants.reduce((total, variant) => {
+    return total + (parseInt(variant.stock) || 0)
+  }, 0)
+}
+
+const editProduct = async (productCode) => {
+  try {
+    loading.value = true
+    const detailData = await fetchProductDetail(productCode)
+    
+    productForm.name = detailData.productName || ''
+    productForm.category = detailData.productCategory || ''
+    productForm.price = detailData.productPrice || 0
+    productForm.discount = detailData.discount || 0
+    productForm.description = detailData.productDescription || ''
+    
+    if (detailData.images && detailData.images.length > 0) {
+      productForm.images = detailData.images.map(img => img.imageUrl)
+      uploadedImageFiles.value = [] 
+    } else {
+      productForm.images = []
+    }
+    if (detailData.productVariant && detailData.productVariant.length > 0 && detailData.size) {
+      productForm.variants = detailData.productVariant.map(variant => {
+        const sizeInfo = detailData.size.find(s => s.sizeId === variant.size)
+        
+        return {
+          size: sizeInfo ? sizeInfo.sizeName : `Size ${variant.sizeId}`,
+          stock: variant.stock || 0,
+          sizeId: variant.size,
+          variantId: variant.variantId
+        }
+      })
+    } else {
+      productForm.variants = []
+    }
+    
+    editingId.value = productCode
+    showAddProductForm.value = true
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    
+  } catch (error) {
+    alert('Error loading product: ' + error.message)
+    console.error('Edit product error:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
 // Form visibility refs for each section
 const showAddProductForm = ref(false)
@@ -730,21 +979,6 @@ const showAddOrderForm = ref(false)
 const editingUserId = ref(null)
 const editingCustomerId = ref(null)
 const editingOrderId = ref(null)
-
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('vi-VN').format(price);
-}
-
-// Product form data
-const productForm = reactive({
-  name: '',
-  category: '',
-  price: 0,
-  description: '',
-  images: [], // Preview URLs (base64)
-  variants: [] // Product variants (size + stock)
-})
 
 // New: Temporary variable for adding new variant
 const newVariantSize = ref('')
@@ -858,90 +1092,6 @@ const orders = ref([
     paymentStatus: 'unpaid'
   }
 ])
-
-const handleSaveProduct = async () => {
-  // Validate variants
-  if (productForm.variants.length > 0) {
-    const hasEmptySize = productForm.variants.some(v => !v.size.trim())
-    if (hasEmptySize) {
-      alert('Please fill in all size names')
-      return
-    }
-  }
-  
-  try {
-    loading.value = true
-    
-    // Prepare product data for API
-    const productData = {
-      name: productForm.name,
-      category: productForm.category,
-      price: productForm.price,
-      description: productForm.description,
-      variants: productForm.variants
-    }
-    
-    // Call API
-    const response = await createProduct(productData, uploadedImageFiles.value)
-    
-    alert(response.message || 'Product saved successfully!')
-    resetForm()
-    
-    // Reload products
-    products.value = []
-    await fetchProducts()
-  } catch (error) {
-    alert('Error saving product: ' + (error.response?.data?.message || error.message))
-  } finally {
-    loading.value = false
-  }
-}
-
-const editProduct = async (product) => {
-  try {
-    // Fetch full product detail
-    const detail = await fetchProductDetail(product.id)
-    
-    editingId.value = product.id
-    productForm.name = detail.name || ''
-    productForm.category = detail.category || ''
-    productForm.price = detail.price || 0
-    productForm.description = detail.description || ''
-    
-    // Load images
-    if (detail.images && Array.isArray(detail.images)) {
-      productForm.images = [...detail.images]
-    } else {
-      productForm.images = []
-    }
-    
-    // Load variants
-    if (detail.variants && Array.isArray(detail.variants)) {
-      productForm.variants = JSON.parse(JSON.stringify(detail.variants))
-    } else {
-      productForm.variants = []
-    }
-    
-    uploadedImageFiles.value = []
-    showAddProductForm.value = true
-    window.scrollTo(0, 0)
-  } catch (error) {
-    alert('Error loading product: ' + error.message)
-  }
-}
-
-const handleDeleteProduct = async (id) => {
-  if (!confirm('Are you sure you want to delete this product?')) {
-    return
-  }
-  
-  try {
-    await apiDeleteProduct(id)
-    alert('Product deleted successfully!')
-  } catch (error) {
-    alert('Error deleting product: ' + (error.response?.data?.message || error.message))
-  }
-}
 
 // User management functions
 const handleSaveUser = async () => {
@@ -1094,82 +1244,6 @@ const resetOrderForm = () => {
   orderForm.paymentStatus = 'unpaid'
   editingOrderId.value = null
   showAddOrderForm.value = false
-}
-
-const resetForm = () => {
-  productForm.name = ''
-  productForm.category = ''
-  productForm.price = 0
-  productForm.description = ''
-  productForm.images = []
-  productForm.variants = []
-  uploadedImageFiles.value = []
-  newVariantSize.value = ''
-  editingId.value = null
-  showAddProductForm.value = false
-}
-
-// Image upload functions
-const handleImageUpload = (event) => {
-  const files = event.target.files
-  if (!files || files.length === 0) return
-
-  Array.from(files).forEach(file => {
-    if (file.type.startsWith('image/')) {
-      // Store actual file for upload
-      uploadedImageFiles.value.push(file)
-      
-      // Create preview
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        productForm.images.push(e.target.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  })
-  
-  // Clear input to allow re-upload same file
-  event.target.value = ''
-}
-
-const removeImage = (index) => {
-  productForm.images.splice(index, 1)
-  uploadedImageFiles.value.splice(index, 1)
-}
-
-// Variant management functions
-const addVariant = () => {
-  if (!newVariantSize.value.trim()) {
-    alert('Please enter a size')
-    return
-  }
-  
-  // Check if size already exists
-  const existingVariant = productForm.variants.find(
-    v => v.size.toLowerCase() === newVariantSize.value.trim().toLowerCase()
-  )
-  
-  if (existingVariant) {
-    alert('This size already exists')
-    return
-  }
-  
-  productForm.variants.push({
-    size: newVariantSize.value.trim(),
-    stock: 0
-  })
-  
-  newVariantSize.value = ''
-}
-
-const removeVariant = (index) => {
-  productForm.variants.splice(index, 1)
-}
-
-const calculateTotalStock = () => {
-  return productForm.variants.reduce((total, variant) => {
-    return total + (parseInt(variant.stock) || 0)
-  }, 0)
 }
 
 const handleMenuSelect = (menuId) => {

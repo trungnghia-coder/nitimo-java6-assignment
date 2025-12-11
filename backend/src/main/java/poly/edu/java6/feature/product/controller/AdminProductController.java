@@ -12,6 +12,7 @@ import poly.edu.java6.feature.product.dto.MessageResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.prodcuctFindAll.ProductFindAllResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.productCreate.SaveProductRequest;
 import poly.edu.java6.feature.product.dto.productCRUD.productCreate.SaveProductResponse;
+import poly.edu.java6.feature.product.dto.productCRUD.productGetByID.ProductGetByIdResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.productUpdate.UpdateProductRequest;
 import poly.edu.java6.feature.product.dto.productDetail.ProductDetailRequest;
 import poly.edu.java6.feature.product.dto.productDisplay.ProductDisplayRequest;
@@ -34,8 +35,8 @@ public class AdminProductController {
     }
 
     @GetMapping("/{code}")
-    public ProductDetailRequest getProductByCode(@PathVariable("code") String productCode) {
-        return productService.getProductById(productCode);
+    public ProductGetByIdResponse getProductByCode(@PathVariable("code") String productCode) {
+        return productService.findProductById(productCode);
     }
 
     @PostMapping("/create")
@@ -64,10 +65,10 @@ public class AdminProductController {
         return ResponseEntity.ok(new MessageResponse(true, "Product deleted successfully"));
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<MessageResponse> updateProduct(@PathVariable String id,
                                                          @RequestPart("data") String productJson,
-                                                         @RequestPart("images") List<MultipartFile> files){
+                                                         @RequestPart(value = "images", required = false) List<MultipartFile> files){
         UpdateProductRequest updateProductRequest;
         ObjectMapper objectMapper = new ObjectMapper();
         try {

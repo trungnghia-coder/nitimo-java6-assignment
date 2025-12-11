@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import poly.edu.java6.feature.product.dto.productCRUD.prodcuctFindAll.ProductFindAllResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.productCreate.SaveProductRequest;
+import poly.edu.java6.feature.product.dto.productCRUD.productGetByID.ProductGetByIdResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.productUpdate.UpdateProductRequest;
 import poly.edu.java6.feature.product.dto.productDetail.ProductDetailRequest;
 import poly.edu.java6.feature.product.dto.productDisplay.ProductDisplayRequest;
@@ -20,6 +21,7 @@ public interface ProductService {
     Optional<Product> findById(String id);
 
     Page<ProductFindAllResponse> findAll(Pageable pageable);
+    ProductGetByIdResponse findProductById(String Id);
     Product createProduct(SaveProductRequest saveProductRequest, List<MultipartFile> files);
     void deleteProduct(String productCode);
     Product updateProduct(String productId, UpdateProductRequest request, List<MultipartFile> newFiles);

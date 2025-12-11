@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductVariantRequest {
-    private int sizeId;
+    private String size;
     private int stockQuantity;
 }

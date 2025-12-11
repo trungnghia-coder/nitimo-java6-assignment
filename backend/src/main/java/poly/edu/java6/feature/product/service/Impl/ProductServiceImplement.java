@@ -9,6 +9,7 @@ import poly.edu.java6.feature.product.dto.productCRUD.prodcuctFindAll.ProductFin
 import poly.edu.java6.feature.product.dto.productCRUD.prodcuctFindAll.ProductSummary;
 import poly.edu.java6.feature.product.dto.productCRUD.productCreate.ProductVariantRequest;
 import poly.edu.java6.feature.product.dto.productCRUD.productCreate.SaveProductRequest;
+import poly.edu.java6.feature.product.dto.productCRUD.productGetByID.ProductGetByIdResponse;
 import poly.edu.java6.feature.product.dto.productCRUD.productUpdate.UpdateProductRequest;
 import poly.edu.java6.feature.product.dto.productCRUD.productUpdate.UpdateProductVariantRequest;
 import poly.edu.java6.feature.product.dto.productDetail.ProductDetailRequest;
@@ -66,8 +67,7 @@ public class ProductServiceImplement implements ProductService {
                     .map(productImage -> new ProductImageRequest(
                             productImage.getImageId(),
                             productImage.getImageUrl(),
-                            productImage.getIsPrimary()
-                    ))
+                            productImage.getIsPrimary()))
                     .collect(Collectors.toList());
 
             return new ProductDisplayRequest(
@@ -75,8 +75,7 @@ public class ProductServiceImplement implements ProductService {
                     product.getName(),
                     product.getPrice(),
                     product.getDiscount(),
-                    images
-            );
+                    images);
         });
     }
 
@@ -89,16 +88,16 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public ProductDetailRequest getProductById(String Id) {
-        Product product = productRepository.findById(Id).
-        orElseThrow(() -> new RuntimeException("Product not found with ID: " + Id));;
+        Product product = productRepository.findById(Id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + Id));
+        ;
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
 
         List<ProductImageRequest> images = productImages.stream()
                 .map(productImage -> new ProductImageRequest(
                         productImage.getImageId(),
                         productImage.getImageUrl(),
-                        productImage.getIsPrimary()
-                ))
+                        productImage.getIsPrimary()))
                 .collect(Collectors.toList());
 
         List<ProductVariant> variants = productVariantRepository.findByProduct(product);
@@ -133,8 +132,7 @@ public class ProductServiceImplement implements ProductService {
                 product.getDiscount(),
                 images,
                 productVariantDTOList,
-                sizeDTOList
-        );
+                sizeDTOList);
     }
 
     @Override
@@ -145,8 +143,7 @@ public class ProductServiceImplement implements ProductService {
                 summary.getProductCode(),
                 summary.getName(),
                 summary.getCategoryName(),
-                summary.getTotalStock()
-        ));
+                summary.getTotalStock()));
     }
 
     @Override
@@ -164,18 +161,20 @@ public class ProductServiceImplement implements ProductService {
         newProduct.setDescription(cpr.getDescription());
         newProduct.setPrice(cpr.getPrice());
         newProduct.setDiscount(cpr.getDiscount());
-        Category category = categoriesRepository.findById(cpr.getCategoryCode()).orElseThrow(() -> new RuntimeException("Category not found"));
+        Category category = categoriesRepository.findById(cpr.getCategoryCode())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
         newProduct.setCategory(category);
 
         List<ProductVariant> variants = cpr.getProductVariantRequest().stream()
-            .map(variantDto -> {
-                ProductVariant variant = new ProductVariant();
-                variant.setSize(sizeRepository.findById(variantDto.getSizeId()).orElseThrow(() -> new RuntimeException("Size not found")));
-                variant.setStock(variantDto.getStockQuantity());
-                variant.setProduct(newProduct);
-                return variant;
-            })
-        .collect(Collectors.toList());
+                .map(variantDto -> {
+                    ProductVariant variant = new ProductVariant();
+                    variant.setSize(sizeRepository.findByName(variantDto.getSize())
+                            .orElseThrow(() -> new RuntimeException("Size not found")));
+                    variant.setStock(variantDto.getStockQuantity());
+                    variant.setProduct(newProduct);
+                    return variant;
+                })
+                .collect(Collectors.toList());
 
         newProduct.setVariants(variants);
 
@@ -191,6 +190,57 @@ public class ProductServiceImplement implements ProductService {
         }
         newProduct.setImages(images);
         return productRepository.save(newProduct);
+    }
+
+    @Override
+    public ProductGetByIdResponse findProductById(String Id) {
+        Product product = productRepository.findById(Id)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + Id));
+        ;
+        List<ProductImage> productImages = productImageRepository.findByProduct(product);
+
+        List<ProductImageRequest> images = productImages.stream()
+                .map(productImage -> new ProductImageRequest(
+                        productImage.getImageId(),
+                        productImage.getImageUrl(),
+                        productImage.getIsPrimary()))
+                .collect(Collectors.toList());
+
+        List<ProductVariant> variants = productVariantRepository.findByProduct(product);
+
+        List<ProductGetByIdResponse.ProductVariantDTO> productVariantDTOList = new ArrayList<>();
+
+        for (ProductVariant variant : variants) {
+            ProductGetByIdResponse.ProductVariantDTO variantDTO = new ProductGetByIdResponse.ProductVariantDTO();
+
+            variantDTO.setVariantId(variant.getVariantId());
+            variantDTO.setSize(variant.getSize().getSizeId());
+            variantDTO.setStock(variant.getStock());
+
+            productVariantDTOList.add(variantDTO);
+        }
+
+        List<ProductGetByIdResponse.SizeDTO> sizeDTOList = variants.stream()
+                .map(variant -> variant.getSize())
+                .distinct()
+                .map(sizeEntity -> {
+                    ProductGetByIdResponse.SizeDTO sizeDTO = new ProductGetByIdResponse.SizeDTO();
+                    sizeDTO.setSizeId(sizeEntity.getSizeId());
+                    sizeDTO.setSizeName(sizeEntity.getName());
+                    return sizeDTO;
+                })
+                .collect(Collectors.toList());
+
+        return new ProductGetByIdResponse(
+                product.getProductCode(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getDiscount(),
+                product.getCategory().getCategoryCode(),
+                images,
+                productVariantDTOList,
+                sizeDTOList);
     }
 
     @Override
@@ -232,13 +282,13 @@ public class ProductServiceImplement implements ProductService {
     }
 
     private void updateImages(Product existingProduct, List<MultipartFile> newFiles) {
-        List<ProductImage> oldImages = existingProduct.getImages();
-        for (ProductImage oldImage : oldImages) {
-            fileStorageService.deleteFile(oldImage.getImageUrl());
-        }
-        productImageRepository.deleteAll(oldImages);
-        existingProduct.getImages().clear();
         if (newFiles != null && !newFiles.isEmpty()) {
+            List<ProductImage> oldImages = new ArrayList<>(existingProduct.getImages());
+            for (ProductImage oldImage : oldImages) {
+                fileStorageService.deleteFile(oldImage.getImageUrl());
+            }
+            productImageRepository.deleteAll(oldImages);
+            existingProduct.getImages().clear();
             List<ProductImage> newImages = new ArrayList<>();
             for (int i = 0; i < newFiles.size(); i++) {
                 MultipartFile file = newFiles.get(i);
@@ -249,7 +299,7 @@ public class ProductServiceImplement implements ProductService {
                 image.setProduct(existingProduct);
                 newImages.add(image);
             }
-            existingProduct.setImages(newImages);
+            existingProduct.getImages().addAll(newImages);
         }
     }
 
@@ -283,7 +333,8 @@ public class ProductServiceImplement implements ProductService {
                 ProductVariant existingVariant = existingProduct.getVariants().stream()
                         .filter(v -> v.getVariantId().equals(variantDto.getVariatId()))
                         .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Variant not found with ID: " + variantDto.getVariatId()));
+                        .orElseThrow(
+                                () -> new RuntimeException("Variant not found with ID: " + variantDto.getVariatId()));
                 existingVariant.setSize(sizeRepository.findById(variantDto.getSizeId())
                         .orElseThrow(() -> new RuntimeException("Size not found")));
                 existingVariant.setStock(variantDto.getStockQuantity());
