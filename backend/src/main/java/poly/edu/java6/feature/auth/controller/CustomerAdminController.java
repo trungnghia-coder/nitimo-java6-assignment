@@ -14,8 +14,8 @@ import poly.edu.java6.feature.auth.service.AuthService;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/admin/auth")
-public class AuthAdminController {
+@RequestMapping("/api/admin/customer")
+public class CustomerAdminController {
     @Autowired
     private AuthService authService;
 

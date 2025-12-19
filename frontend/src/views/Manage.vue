@@ -284,7 +284,7 @@
               <!-- Pagination Controls -->
               <div v-if="totalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
                 <div class="text-muted">
-                  Showing {{ products.length }} of {{ totalElements }} products (Page {{ currentPage + 1 }} / {{ totalPages }})
+                  Showing {{ products.length }} of {{ totalElements }} products (Page {{ (currentPage || 0) + 1 }} / {{ totalPages || 1 }})
                 </div>
                 <nav>
                   <ul class="pagination mb-0">
@@ -326,7 +326,7 @@
         <!-- Add User Form -->
         <div v-if="showAddUserForm" class="form-container card border mb-4">
           <div class="card-body">
-            <h3 class="form-title mb-4">{{ editingUserId ? 'Edit User' : 'Add New User' }}</h3>
+            <h3 class="form-title mb-4">{{ editingUserId ? 'Update User' : 'Add New User' }}</h3>
             
             <form @submit.prevent="handleSaveUser" class="product-form">
               <div class="row">
@@ -334,7 +334,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Full Name</label>
                     <input 
-                      v-model="userForm.name" 
+                      v-model="currentUser.fullName" 
                       type="text" 
                       class="form-control" 
                       placeholder="Enter full name"
@@ -346,7 +346,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Email</label>
                     <input 
-                      v-model="userForm.email" 
+                      v-model="currentUser.email" 
                       type="email" 
                       class="form-control" 
                       placeholder="Enter email"
@@ -361,7 +361,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Phone</label>
                     <input 
-                      v-model="userForm.phone" 
+                      v-model="currentUser.phone" 
                       type="tel" 
                       class="form-control" 
                       placeholder="Enter phone number"
@@ -372,28 +372,55 @@
                 <div class="col-md-3">
                   <div class="form-group mb-3">
                     <label class="form-label">Role</label>
-                    <select v-model="userForm.role" class="form-control" required>
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
+                    <select v-model="currentUser.role" class="form-control" required>
+                      <option value="USER">User</option>
+                      <option value="ADMIN">Admin</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-group mb-3">
                     <label class="form-label">Status</label>
-                    <select v-model="userForm.status" class="form-control" required>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
+                    <select v-model="currentUser.status" class="form-control" required>
+                      <option value="ACTIVE">Active</option>
+                      <option value="INACTIVE">Inactive</option>
                     </select>
                   </div>
                 </div>
               </div>
 
+               <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Password</label>
+                    <input 
+                      v-model="currentUser.password" 
+                      type="password" 
+                      class="form-control" 
+                      placeholder="Enter password"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input 
+                      v-model="currentUser.confirmPassword" 
+                      type="password" 
+                      class="form-control" 
+                      placeholder="Enter confirm password"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div class="form-actions">
-                <button type="submit" class="btn btn-orange fw-bold">
+                <button type="submit" class="btn btn-orange fw-bold" @click="handleSaveUser">
                   {{ editingUserId ? 'Update User' : 'Add User' }}
                 </button>
-                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetUserForm">
+                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetFormUser, showAddUserForm = false">
                   Cancel
                 </button>
               </div>
@@ -410,7 +437,6 @@
               <table class="table table-hover">
                 <thead class="table-light">
                   <tr>
-                    <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -421,14 +447,13 @@
                 </thead>
                 <tbody>
                   <tr v-for="user in users" :key="user.id">
-                    <td>{{ user.id }}</td>
                     <td class="fw-semibold">{{ user.name }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
-                    <td><span class="badge" :class="user.role === 'admin' ? 'bg-danger' : 'bg-primary'">{{ user.role }}</span></td>
-                    <td><span class="badge" :class="user.status === 'active' ? 'bg-success' : 'bg-secondary'">{{ user.status }}</span></td>
+                    <td><span class="badge" :class="getUserRoleBadge(user.role)">{{ user.role }}</span></td>
+                    <td><span class="badge" :class="getStatusBadge(user.status)">{{ user.status }}</span></td>
                     <td>
-                      <button class="btn btn-sm btn-warning me-2" @click="editUser(user)">
+                      <button class="btn btn-sm btn-warning me-2" @click="editUser(user.id), showAddUserForm = true, editingUserId = user.id">
                         <i class="fas fa-edit"></i> Edit
                       </button>
                       <button class="btn btn-sm btn-danger" @click="deleteUser(user.id)">
@@ -438,6 +463,39 @@
                   </tr>
                 </tbody>
               </table>
+              
+              <!-- Pagination Controls -->
+              <div v-if="userTotalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                  Showing {{ users.length }} of {{ userTotalElements }} users (Page {{ (userCurrentPage || 0) + 1 }} / {{ userTotalPages || 1 }})
+                </div>
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: userCurrentPage === 0 }">
+                      <button class="page-link" @click="userPrevPage" :disabled="userCurrentPage === 0">
+                        Previous
+                      </button>
+                    </li>
+                    
+                    <li 
+                      v-for="page in userTotalPages" 
+                      :key="page" 
+                      class="page-item" 
+                      :class="{ active: userCurrentPage === page - 1 }"
+                    >
+                      <button class="page-link" @click="userGoToPage(page - 1)">
+                        {{ page }}
+                      </button>
+                    </li>
+                    
+                    <li class="page-item" :class="{ disabled: userCurrentPage >= userTotalPages - 1 }">
+                      <button class="page-link" @click="userNextPage" :disabled="userCurrentPage >= userTotalPages - 1">
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
@@ -450,7 +508,7 @@
         <!-- Add Customer Form -->
         <div v-if="showAddCustomerForm" class="form-container card border mb-4">
           <div class="card-body">
-            <h3 class="form-title mb-4">{{ editingCustomerId ? 'Edit Customer' : 'Add New Customer' }}</h3>
+            <h3 class="form-title mb-4">Update Customer</h3>
             
             <form @submit.prevent="handleSaveCustomer" class="product-form">
               <div class="row">
@@ -458,7 +516,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Full Name</label>
                     <input 
-                      v-model="customerForm.name" 
+                      v-model="currentCustomer.fullName" 
                       type="text" 
                       class="form-control" 
                       placeholder="Enter full name"
@@ -470,7 +528,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Email</label>
                     <input 
-                      v-model="customerForm.email" 
+                      v-model="currentCustomer.email" 
                       type="email" 
                       class="form-control" 
                       placeholder="Enter email"
@@ -485,7 +543,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Phone</label>
                     <input 
-                      v-model="customerForm.phone" 
+                      v-model="currentCustomer.phone" 
                       type="tel" 
                       class="form-control" 
                       placeholder="Enter phone number"
@@ -497,7 +555,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Address</label>
                     <input 
-                      v-model="customerForm.address" 
+                      v-model="currentCustomer.address" 
                       type="text" 
                       class="form-control" 
                       placeholder="Enter address"
@@ -508,10 +566,10 @@
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-orange fw-bold">
-                  {{ editingCustomerId ? 'Update Customer' : 'Add Customer' }}
+                <button type="submit" class="btn btn-orange fw-bold"  @click="updateCustomer">
+                  Update Customer
                 </button>
-                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetCustomerForm">
+                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetFormCustomer(), showAddCustomerForm = false">
                   Cancel
                 </button>
               </div>
@@ -528,25 +586,25 @@
               <table class="table table-hover">
                 <thead class="table-light">
                   <tr>
-                    <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Address</th>
+                    <th>Status</th>
                     <th>Total Orders</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="customer in customers" :key="customer.id">
-                    <td>{{ customer.id }}</td>
-                    <td class="fw-semibold">{{ customer.name }}</td>
+                    <td class="fw-semibold" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="customer.fullName">{{ customer.fullName }}</td>
                     <td>{{ customer.email }}</td>
-                    <td>{{ customer.phone }}</td>
-                    <td>{{ customer.address }}</td>
-                    <td class="fw-bold">{{ customer.totalOrders }}</td>
+                    <td>{{ customer.phoneNumber }}</td>
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" :title="customer.address">{{ customer.address }}</td>
+                    <td><span class="badge" :class="getStatusBadge(customer.status)">{{ customer.status || 'N/A' }}</span></td>
+                    <td class="fw-bold">{{ customer.totalOrder }}</td>
                     <td>
-                      <button class="btn btn-sm btn-warning me-2" @click="editCustomer(customer)">
+                      <button class="btn btn-sm btn-warning me-2" @click="editCustomer(customer.id), showAddCustomerForm = true">
                         <i class="fas fa-edit"></i> Edit
                       </button>
                       <button class="btn btn-sm btn-danger" @click="deleteCustomer(customer.id)">
@@ -556,6 +614,39 @@
                   </tr>
                 </tbody>
               </table>
+              
+              <!-- Pagination Controls -->
+              <div v-if="customerTotalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                  Showing {{ customers.length }} of {{ customerTotalElements }} customers (Page {{ (customerCurrentPage || 0) + 1 }} / {{ customerTotalPages || 1 }})
+                </div>
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: customerCurrentPage === 0 }">
+                      <button class="page-link" @click="customerPrevPage" :disabled="customerCurrentPage === 0">
+                        Previous
+                      </button>
+                    </li>
+                    
+                    <li 
+                      v-for="page in customerTotalPages" 
+                      :key="page" 
+                      class="page-item" 
+                      :class="{ active: customerCurrentPage === page - 1 }"
+                    >
+                      <button class="page-link" @click="customerGoToPage(page - 1)">
+                        {{ page }}
+                      </button>
+                    </li>
+                    
+                    <li class="page-item" :class="{ disabled: customerCurrentPage >= customerTotalPages - 1 }">
+                      <button class="page-link" @click="customerNextPage" :disabled="customerCurrentPage >= customerTotalPages - 1">
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
@@ -568,7 +659,7 @@
         <!-- Add Order Form -->
         <div v-if="showAddOrderForm" class="form-container card border mb-4">
           <div class="card-body">
-            <h3 class="form-title mb-4">{{ editingOrderId ? 'Edit Order' : 'Add New Order' }}</h3>
+            <h3 class="form-title mb-4">Update Order</h3>
             
             <form @submit.prevent="handleSaveOrder" class="product-form">
               <div class="row">
@@ -576,7 +667,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Customer Name</label>
                     <input 
-                      v-model="orderForm.customer" 
+                      v-model="currentOrder.customerName" 
                       type="text" 
                       class="form-control" 
                       placeholder="Enter customer name"
@@ -588,7 +679,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Order Date</label>
                     <input 
-                      v-model="orderForm.orderDate" 
+                      v-model="currentOrder.orderDate" 
                       type="date" 
                       class="form-control"
                       required
@@ -602,7 +693,7 @@
                   <div class="form-group mb-3">
                     <label class="form-label">Total Amount</label>
                     <input 
-                      v-model="orderForm.totalAmount" 
+                      v-model="currentOrder.orderAmount" 
                       type="number" 
                       class="form-control" 
                       placeholder="0.00"
@@ -615,31 +706,31 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label class="form-label">Status</label>
-                    <select v-model="orderForm.status" class="form-control" required>
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="shipping">Shipping</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
+                    <select v-model="currentOrder.orderStatus" class="form-control" required>
+                      <option value="PENDING">Pending</option>
+                      <option value="CONFIRMED">Confirmed</option>
+                      <option value="SHIPPING">Shipping</option>
+                      <option value="COMPLETED">Completed</option>
+                      <option value="CANCELLED">Cancelled</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label class="form-label">Payment Status</label>
-                    <select v-model="orderForm.paymentStatus" class="form-control" required>
-                      <option value="paid">Paid</option>
-                      <option value="unpaid">Unpaid</option>
+                    <select v-model="currentOrder.paymentStatus" class="form-control" required>
+                      <option value="PAID">Paid</option>
+                      <option value="UNPAID">Unpaid</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-orange fw-bold">
-                  {{ editingOrderId ? 'Update Order' : 'Add Order' }}
+                <button type="submit" class="btn btn-orange fw-bold" @click="updateOrder">
+                  Update Order
                 </button>
-                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetOrderForm">
+                <button type="button" class="btn btn-secondary fw-bold ms-2" @click="resetFormOrder(), showAddOrderForm = false">
                   Cancel
                 </button>
               </div>
@@ -656,7 +747,6 @@
               <table class="table table-hover">
                 <thead class="table-light">
                   <tr>
-                    <th>Order ID</th>
                     <th>Customer</th>
                     <th>Order Date</th>
                     <th>Total Amount</th>
@@ -666,32 +756,64 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="order in orders" :key="order.id">
-                    <td class="fw-semibold">#{{ order.id }}</td>
-                    <td>{{ order.customer }}</td>
+                  <tr v-for="order in orders" :key="order.orderId">
+                    <td>{{ order.customerName }}</td>
                     <td>{{ new Date(order.orderDate).toLocaleDateString('vi-VN') }}</td>
-                    <td class="fw-bold">{{ order.totalAmount.toLocaleString() }}₫</td>
+                    <td class="fw-bold">{{ order.orderAmount.toLocaleString() }}₫</td>
                     <td>
-                      <span class="badge" :class="getOrderStatusBadge(order.status)">
-                        {{ order.status }}
+                      <span class="badge" :class="getOrderStatusBadge(order.orderStatus)">
+                        {{ order.orderStatus }}
                       </span>
                     </td>
                     <td>
-                      <span class="badge" :class="order.paymentStatus === 'paid' ? 'bg-success' : 'bg-warning'">
+                      <span class="badge" :class="getPaymentStatusBadge(order.paymentStatus)">
                         {{ order.paymentStatus }}
                       </span>
                     </td>
                     <td>
-                      <button class="btn btn-sm btn-warning me-2" @click="editOrder(order)">
+                      <button class="btn btn-sm btn-warning me-2" @click="editOrder(order.orderId), showAddOrderForm = true">
                         <i class="fas fa-edit"></i> Edit
                       </button>
-                      <button class="btn btn-sm btn-danger" @click="deleteOrder(order.id)">
+                      <button class="btn btn-sm btn-danger" @click="deleteOrder(order.orderId)">
                         <i class="fas fa-trash"></i> Delete
                       </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+              
+              <!-- Pagination Controls -->
+              <div v-if="orderTotalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                  Showing {{ orders.length }} of {{ orderTotalElements }} orders (Page {{ (orderCurrentPage || 0) + 1 }} / {{ orderTotalPages || 1 }})
+                </div>
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: orderCurrentPage === 0 }">
+                      <button class="page-link" @click="orderPrevPage" :disabled="orderCurrentPage === 0">
+                        Previous
+                      </button>
+                    </li>
+                    
+                    <li 
+                      v-for="page in orderTotalPages" 
+                      :key="page" 
+                      class="page-item" 
+                      :class="{ active: orderCurrentPage === page - 1 }"
+                    >
+                      <button class="page-link" @click="orderGoToPage(page - 1)">
+                        {{ page }}
+                      </button>
+                    </li>
+                    
+                    <li class="page-item" :class="{ disabled: orderCurrentPage >= orderTotalPages - 1 }">
+                      <button class="page-link" @click="orderNextPage" :disabled="orderCurrentPage >= orderTotalPages - 1">
+                        Next
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
@@ -705,7 +827,10 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ManageMenu from '../components/ManageMenu.vue'
 import useCategory from '../composables/useCategory'
-import useProductManagement from '../composables/management/useProductManagement'
+import useProductManagement from '../composables/management/useProductManage'
+import { useCustomerManage } from '../composables/management/useCustomerManage'
+import { useUserManage } from '../composables/management/useUserManage'
+import { useOrderManage } from '../composables/management/useOrderManage'
 import '../assets/css/manage.css'
 import api from '../utils/api';
 const BASE_URL = api.defaults.baseURL;
@@ -733,10 +858,75 @@ const {
   prevPage
 } = useProductManagement()
 
+const {
+  customers,
+  currentCustomer,
+  fetchCustomers,
+  fetchCustomerById,
+  createCustomer,
+  updateCustomer,
+  editCustomer,
+  resetFormCustomer,
+  deleteCustomer,
+  currentPage: customerCurrentPage,
+  totalPages: customerTotalPages,
+  totalElements: customerTotalElements,
+  goToPage: customerGoToPage,
+  nextPage: customerNextPage,
+  prevPage: customerPrevPage
+} = useCustomerManage()
+
+const {
+  users,
+  currentUser,
+  fetchUsers,
+  fetchUserById,
+  updateUser,
+  editUser,
+  createUser,
+  resetFormUser,
+  deleteUser,
+  currentPage: userCurrentPage,
+  totalPages: userTotalPages,
+  totalElements: userTotalElements,
+  goToPage: userGoToPage,
+  nextPage: userNextPage,
+  prevPage: userPrevPage
+} = useUserManage()
+
+const {
+  orders,
+  currentOrder,
+  fetchOrders,
+  fetchOrderById,
+  updateOrder,
+  editOrder,
+  resetFormOrder,
+  deleteOrder,
+  currentPage: orderCurrentPage,
+  totalPages: orderTotalPages,
+  totalElements: orderTotalElements,
+  goToPage: orderGoToPage,
+  nextPage: orderNextPage,
+  prevPage: orderPrevPage
+} = useOrderManage()
+
+const handleSaveUser = async () => {
+  if (editingUserId.value) {
+    await updateUser()
+  } else {
+    await createUser()
+  }
+  resetFormUser()
+}
+
 onMounted(() => {
   if (currentMenu.value === 'products') {
     fetchProducts(0);
   }
+  fetchCustomers(0);
+  fetchUsers(0);
+  fetchOrders(0);
 });
 
 const getFullImageUrl = (relativeUrl) => {
@@ -752,13 +942,9 @@ const getFullImageUrl = (relativeUrl) => {
 
 const handleSaveProduct = async () => {
   try {
-    console.log('handleSaveProduct called, editingId:', editingId.value) // Debug
-    
     if (editingId.value) {
-      console.log('Calling UPDATE') // Debug
       await handleUpdateProduct()
     } else {
-      console.log('Calling CREATE') // Debug
       await handleCreateProduct()
     }
   } catch (error) {
@@ -794,9 +980,6 @@ const handleCreateProduct = async () => {
 
 const handleUpdateProduct = async () => {
   try {
-    console.log('handleUpdateProduct called') // Debug
-    console.log('editingId:', editingId.value) // Debug
-    console.log('productForm:', productForm) // Debug
     
     loading.value = true
     const productData = {
@@ -812,19 +995,13 @@ const handleUpdateProduct = async () => {
       }))
     }
     
-    console.log('productData:', productData) // Debug
-    console.log('uploadedImageFiles:', uploadedImageFiles.value) // Debug
-    
     const response = await updateProduct(editingId.value, productData, uploadedImageFiles.value)
     
-    console.log('Update response:', response) // Debug
     alert(response.message || 'Product updated successfully!')
     resetForm()
     
-    // Reload lại trang hiện tại
     await fetchProducts(currentPage.value)
   } catch (error) {
-    console.error('Update error:', error) // Debug
     alert('Error: ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
@@ -983,259 +1160,6 @@ const editingOrderId = ref(null)
 // New: Temporary variable for adding new variant
 const newVariantSize = ref('')
 
-// User form data
-const userForm = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  role: 'user',
-  status: 'active'
-})
-
-// Customer form data
-const customerForm = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  address: ''
-})
-
-// Order form data
-const orderForm = reactive({
-  customer: '',
-  orderDate: '',
-  totalAmount: 0,
-  status: 'pending',
-  paymentStatus: 'unpaid'
-})
-
-// Mock users data
-const users = ref([
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '0987654321',
-    role: 'admin',
-    status: 'active'
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '0987654322',
-    role: 'user',
-    status: 'active'
-  },
-  {
-    id: 3,
-    name: 'Bob Wilson',
-    email: 'bob@example.com',
-    phone: '0987654323',
-    role: 'user',
-    status: 'inactive'
-  }
-])
-
-// Mock customers data
-const customers = ref([
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    email: 'nguyena@example.com',
-    phone: '0901234567',
-    address: '123 Nguyễn Hữu Cảnh, Bình Thạnh, HCM',
-    totalOrders: 5
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    email: 'tranb@example.com',
-    phone: '0901234568',
-    address: '456 Lê Văn Sỹ, Phú Nhuận, HCM',
-    totalOrders: 3
-  },
-  {
-    id: 3,
-    name: 'Lê Văn C',
-    email: 'levanc@example.com',
-    phone: '0901234569',
-    address: '789 Trần Hữu Trang, Quận 1, HCM',
-    totalOrders: 8
-  }
-])
-
-// Mock orders data
-const orders = ref([
-  {
-    id: 'ORD001',
-    customer: 'Nguyễn Văn A',
-    orderDate: '2025-11-10',
-    totalAmount: 1500000,
-    status: 'completed',
-    paymentStatus: 'paid'
-  },
-  {
-    id: 'ORD002',
-    customer: 'Trần Thị B',
-    orderDate: '2025-11-12',
-    totalAmount: 750000,
-    status: 'shipping',
-    paymentStatus: 'paid'
-  },
-  {
-    id: 'ORD003',
-    customer: 'Lê Văn C',
-    orderDate: '2025-11-14',
-    totalAmount: 2200000,
-    status: 'pending',
-    paymentStatus: 'unpaid'
-  }
-])
-
-// User management functions
-const handleSaveUser = async () => {
-  if (editingUserId.value) {
-    // Update existing user
-    const index = users.value.findIndex(u => u.id === editingUserId.value)
-    if (index !== -1) {
-      users.value[index] = {
-        ...users.value[index],
-        ...userForm
-      }
-    }
-  } else {
-    // Add new user
-    users.value.push({
-      id: Math.max(...users.value.map(u => u.id), 0) + 1,
-      ...userForm
-    })
-  }
-  
-  alert(editingUserId.value ? 'User updated!' : 'User added!')
-  resetUserForm()
-}
-
-const editUser = (user) => {
-  editingUserId.value = user.id
-  userForm.name = user.name
-  userForm.email = user.email
-  userForm.phone = user.phone
-  userForm.role = user.role
-  userForm.status = user.status
-  showAddUserForm.value = true
-  window.scrollTo(0, 0)
-}
-
-const deleteUser = (id) => {
-  if (confirm('Are you sure you want to delete this user?')) {
-    users.value = users.value.filter(u => u.id !== id)
-    alert('User deleted!')
-  }
-}
-
-const resetUserForm = () => {
-  userForm.name = ''
-  userForm.email = ''
-  userForm.phone = ''
-  userForm.role = 'user'
-  userForm.status = 'active'
-  editingUserId.value = null
-  showAddUserForm.value = false
-}
-
-// Customer management functions
-const handleSaveCustomer = async () => {
-  if (editingCustomerId.value) {
-    // Update existing customer
-    const index = customers.value.findIndex(c => c.id === editingCustomerId.value)
-    if (index !== -1) {
-      customers.value[index] = {
-        ...customers.value[index],
-        ...customerForm
-      }
-    }
-  } else {
-    // Add new customer
-    customers.value.push({
-      id: Math.max(...customers.value.map(c => c.id), 0) + 1,
-      ...customerForm,
-      totalOrders: 0
-    })
-  }
-  
-  alert(editingCustomerId.value ? 'Customer updated!' : 'Customer added!')
-  resetCustomerForm()
-}
-
-const editCustomer = (customer) => {
-  editingCustomerId.value = customer.id
-  customerForm.name = customer.name
-  customerForm.email = customer.email
-  customerForm.phone = customer.phone
-  customerForm.address = customer.address
-  showAddCustomerForm.value = true
-  window.scrollTo(0, 0)
-}
-
-const deleteCustomer = (id) => {
-  if (confirm('Are you sure you want to delete this customer?')) {
-    customers.value = customers.value.filter(c => c.id !== id)
-    alert('Customer deleted!')
-  }
-}
-
-const resetCustomerForm = () => {
-  customerForm.name = ''
-  customerForm.email = ''
-  customerForm.phone = ''
-  customerForm.address = ''
-  editingCustomerId.value = null
-  showAddCustomerForm.value = false
-}
-
-// Order management functions
-const handleSaveOrder = async () => {
-  if (editingOrderId.value) {
-    // Update existing order
-    const index = orders.value.findIndex(o => o.id === editingOrderId.value)
-    if (index !== -1) {
-      orders.value[index] = {
-        ...orders.value[index],
-        ...orderForm
-      }
-    }
-  } else {
-    // Add new order - generate order ID
-    const newOrderId = `ORD${String(orders.value.length + 1).padStart(3, '0')}`
-    orders.value.push({
-      id: newOrderId,
-      ...orderForm
-    })
-  }
-  
-  alert(editingOrderId.value ? 'Order updated!' : 'Order added!')
-  resetOrderForm()
-}
-
-const editOrder = (order) => {
-  editingOrderId.value = order.id
-  orderForm.customer = order.customer
-  orderForm.orderDate = order.orderDate
-  orderForm.totalAmount = order.totalAmount
-  orderForm.status = order.status
-  orderForm.paymentStatus = order.paymentStatus
-  showAddOrderForm.value = true
-  window.scrollTo(0, 0)
-}
-
-const deleteOrder = (id) => {
-  if (confirm('Are you sure you want to delete this order?')) {
-    orders.value = orders.value.filter(o => o.id !== id)
-    alert('Order deleted!')
-  }
-}
-
 const resetOrderForm = () => {
   orderForm.customer = ''
   orderForm.orderDate = ''
@@ -1271,12 +1195,24 @@ const getMenuLabel = (menuId) => {
 
 const getOrderStatusBadge = (status) => {
   const statusMap = {
-    'pending': 'bg-warning',
-    'confirmed': 'bg-info',
-    'shipping': 'bg-primary',
-    'completed': 'bg-success',
-    'cancelled': 'bg-danger'
+    'PENDING': 'bg-warning',
+    'CONFIRMED': 'bg-info',
+    'SHIPPING': 'bg-primary',
+    'COMPLETED': 'bg-success',
+    'CANCELLED': 'bg-danger'
   }
   return statusMap[status] || 'bg-secondary'
+}
+
+const getUserRoleBadge = (role) => {
+  return role === 'ADMIN' ? 'bg-danger' : 'bg-primary'
+}
+
+const getStatusBadge = (status) => {
+  return status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'
+}
+
+const getPaymentStatusBadge = (paymentStatus) => {
+  return paymentStatus === 'PAID' ? 'bg-success' : 'bg-warning'
 }
 </script>

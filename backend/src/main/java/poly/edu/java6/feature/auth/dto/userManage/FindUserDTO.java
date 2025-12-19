@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FindUserDTO {
+    String userId;
     String fullName;
-    String password;
     String email;
     String phone;
     String role;
+    String status;
 }

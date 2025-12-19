@@ -143,6 +143,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getPhone(),
                 user.getEmail(),
                 user.getAddress(),
+                user.getStatus().toString(),
                 user.getOrders().size()));
     }
 
@@ -151,6 +152,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<User> user = authRepository.findByUsername(username);
         return user.map(u -> new FindCustomerDTO(
                 u.getUsername(),
+                u.getFullName(),
                 u.getEmail(),
                 u.getPhone(),
                 u.getAddress(),
@@ -191,11 +193,12 @@ public class AuthServiceImpl implements AuthService {
     public Optional<FindUserDTO> findUserById(String id) {
         Optional<User> user = authRepository.findByUsername(id);
         return user.map(u -> new FindUserDTO(
+                u.getUsername(),
                 u.getFullName(),
                 u.getEmail(),
                 u.getPhone(),
-                u.getAddress(),
-                u.getRole().toString()
+                u.getRole().toString(),
+                u.getStatus().toString()
         ));
     }
 
@@ -219,7 +222,9 @@ public class AuthServiceImpl implements AuthService {
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         return authRepository.save(user);
     }
 }

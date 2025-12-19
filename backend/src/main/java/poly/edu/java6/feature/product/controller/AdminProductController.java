@@ -29,7 +29,7 @@ public class AdminProductController {
     private ProductService productService;
 
     @GetMapping("/")
-    public Page<ProductFindAllResponse> getAllProdcut(Pageable pageable) {
+    public Page<ProductFindAllResponse> getAllProduct(Pageable pageable) {
         Page<ProductFindAllResponse> cateList = productService.findAll(pageable);
         return cateList;
     }

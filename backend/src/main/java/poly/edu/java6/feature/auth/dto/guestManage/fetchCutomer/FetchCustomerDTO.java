@@ -13,5 +13,6 @@ public class FetchCustomerDTO {
     String phoneNumber;
     String email;
     String address;
+    String status;
     Integer totalOrder;
 }

@@ -1,5 +1,4 @@
 import { ref, onMounted } from 'vue'
-import api from '../../utils/api'
 import { productManageService } from '../../service/productManageService';
 const successMessage = ref('')
 
