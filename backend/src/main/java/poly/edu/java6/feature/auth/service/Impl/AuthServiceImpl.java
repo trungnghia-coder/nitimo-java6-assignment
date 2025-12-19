@@ -1,21 +1,31 @@
 package poly.edu.java6.feature.auth.service.Impl;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poly.edu.java6.feature.auth.dto.guestManage.fetchCutomer.FetchCustomerDTO;
+import poly.edu.java6.feature.auth.dto.guestManage.findCustomer.FindCustomerDTO;
+import poly.edu.java6.feature.auth.dto.guestManage.updateCustomer.UpdateCustomerRequest;
 import poly.edu.java6.feature.auth.dto.logup.LogupRequest;
 import poly.edu.java6.feature.auth.dto.passwordChange.PasswordChangeRequest;
+import poly.edu.java6.feature.auth.dto.userManage.CreateUserRequest;
+import poly.edu.java6.feature.auth.dto.userManage.FetchUserDTO;
 import poly.edu.java6.feature.auth.dto.updateUserProfile.UpdateUserProfileRequest;
 import poly.edu.java6.feature.auth.dto.userInformation.UserProfileResponce;
+import poly.edu.java6.feature.auth.dto.userManage.FindUserDTO;
+import poly.edu.java6.feature.auth.dto.userManage.UpdateUserRequest;
 import poly.edu.java6.feature.auth.repository.AuthRepository;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.model.User;
 import poly.edu.java6.utils.IdUtils;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -122,5 +132,94 @@ public class AuthServiceImpl implements AuthService {
     public User findUserByUsername(String username) {
         return authRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng: " + username));
+    }
+
+    @Override
+    public Page<FetchCustomerDTO> findAll(Pageable pageable) {
+        Page<User> users = authRepository.findAllByRole(User.Role.USER, pageable);
+        return users.map(user -> new FetchCustomerDTO(
+                user.getUsername(),
+                user.getFullName(),
+                user.getPhone(),
+                user.getEmail(),
+                user.getAddress(),
+                user.getOrders().size()));
+    }
+
+    @Override
+    public Optional<FindCustomerDTO> findByUsername(String username) {
+        Optional<User> user = authRepository.findByUsername(username);
+        return user.map(u -> new FindCustomerDTO(
+                u.getUsername(),
+                u.getEmail(),
+                u.getPhone(),
+                u.getAddress(),
+                u.getCreatedAt()
+        ));
+    }
+
+    @Override
+    public User updateCustomerProfile(String username,UpdateCustomerRequest request) {
+        User user = authRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setAddress(request.getAddress());
+        return authRepository.save(user);
+    }
+
+    @Override
+    public User deleteCustomer(String username) {
+        User user = authRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        user.setStatus(User.Status.INACTIVE);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public Page<FetchUserDTO> findAllUser(Pageable pageable) {
+        Page<User> users = authRepository.findAll(pageable);
+        return users.map(user -> new FetchUserDTO(
+                user.getUsername(),
+                user.getFullName(),
+                user.getPhone(),
+                user.getEmail(),
+                user.getRole().toString(),
+                user.getStatus().toString()));
+    }
+
+    @Override
+    public Optional<FindUserDTO> findUserById(String id) {
+        Optional<User> user = authRepository.findByUsername(id);
+        return user.map(u -> new FindUserDTO(
+                u.getFullName(),
+                u.getEmail(),
+                u.getPhone(),
+                u.getAddress(),
+                u.getRole().toString()
+        ));
+    }
+
+    @Override
+    public User createUser(CreateUserRequest req) {
+        User user = new User();
+        String newId = IdUtils.generateNewId();
+        user.setUsername(newId);
+        user.setFullName(req.getFullName());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setPhone(req.getPhone());
+        user.setEmail(req.getEmail());
+        user.setStatus(User.Status.ACTIVE);
+        user.setRole(User.Role.ADMIN);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public User updateUser(String username, UpdateUserRequest request) {
+        User user = authRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        return authRepository.save(user);
     }
 }

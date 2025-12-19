@@ -11,4 +11,5 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @EntityGraph(attributePaths = {"details", "user", "details.product", "details.variant"})
     Optional<Order> findById(String orderCode);
     List<Order> findOrderByUser_Username(String username);
+    Integer countByUser_Username(String username);
 }

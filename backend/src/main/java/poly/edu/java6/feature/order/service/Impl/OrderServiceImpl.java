@@ -1,14 +1,20 @@
 package poly.edu.java6.feature.order.service.Impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poly.edu.java6.feature.auth.dto.userManage.FindUserDTO;
 import poly.edu.java6.feature.auth.service.AuthService;
 import poly.edu.java6.feature.cart.service.CartService;
 import poly.edu.java6.feature.order.dto.CreateOrderRequest;
 import poly.edu.java6.feature.order.dto.CreateOrderResponse;
 import poly.edu.java6.feature.order.dto.FetchOrderHistory;
+import poly.edu.java6.feature.order.dto.orderManege.FetchOrdersInfoDTO;
+import poly.edu.java6.feature.order.dto.orderManege.UpdateStatusOrderRequest;
 import poly.edu.java6.feature.order.repository.OrderDetailRepository;
 import poly.edu.java6.feature.order.repository.OrderRepository;
 import poly.edu.java6.feature.order.service.OrderService;
@@ -20,10 +26,7 @@ import poly.edu.java6.utils.IdUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -137,5 +140,49 @@ public class OrderServiceImpl implements OrderService {
             fetchOrderHistoryList.add(fh);
         }
         return fetchOrderHistoryList;
+    }
+
+    @Override
+    public Page<FetchOrdersInfoDTO> getOrders(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(order -> new FetchOrdersInfoDTO(
+                order.getOrderCode(),
+                order.getUser().getFullName(),
+                order.getOrderDate(),
+                order.getTotalAmount(),
+                order.getStatus().toString(),
+                order.getPaymentStatus().toString()));
+    }
+
+    @Override
+    public Optional<FetchOrdersInfoDTO> findOrderById(String orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        return order.map(o -> new FetchOrdersInfoDTO(
+                o.getOrderCode(),
+                o.getUser().getFullName(),
+                o.getOrderDate(),
+                o.getTotalAmount(),
+                o.getStatus().toString(),
+                o.getPaymentStatus().toString()
+        ));
+    }
+
+    @Override
+    public Order updateOrder(UpdateStatusOrderRequest request) {
+        Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() -> new NullPointerException("User not found with username: " + request.getOrderId()));
+        String statusStr = request.getOrderStatus().toUpperCase();
+        Order.OrderStatus newStatus = Order.OrderStatus.valueOf(statusStr);
+        order.setStatus(newStatus);
+        String paymentStr = request.getPaymentStatus().toUpperCase();
+        Order.PaymentStatus payment = Order.PaymentStatus.valueOf(paymentStr);
+        order.setPaymentStatus(payment);
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public void deleteOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NullPointerException("User not found with username: " + orderId));
+        order.setStatus(Order.OrderStatus.CANCELLED);
+        orderRepository.save(order);
     }
 }

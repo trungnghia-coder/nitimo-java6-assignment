@@ -1,0 +1,15 @@
+package poly.edu.java6.feature.auth.dto.userManage;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdateUserRequest {
+    String fullName;
+    String password;
+    String email;
+    String phone;
+}
