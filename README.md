@@ -86,353 +86,133 @@ Website thương mại điện tử bán quần áo trực tuyến với đầy 
 - **Bootstrap 5.3.8** - CSS framework
 - **Pinia** - State management
 
----
+## Cấu trúc project
 
-## 🏗️ Kiến Trúc
-
-### Backend Architecture (Feature-based)
-
-## Kiến Trúc Dự Án             # Chia theo tính năng
-│   ├── auth/               # Authentication & User Management
-│   ├── product/            # Product Management
-│   ├── cart/               # Shopping Cart
-│   ├── order/              # Order Processing
-│   └── size/               # Size Management
-├── infrastructure/         # Cấu hình & Infrastructure
-│   ├── config/            # Security, CORS, Web Config
-│   ├── filter/            # JWT Filter
-│   ├── interceptor/       # Request/Response Interceptors
-│   └── aop/               # Aspect-Oriented Programming
-├── model/                  # Domain Models (10 Entities)
-├── service/                # Shared Services
-└── utils/                  # Utilities
+Backend sử dụng feature-based architecture:
+```
+backend/src/main/java/poly/edu/java6/
+├── feature/
+│   ├── auth/          # Authentication, user management
+│   ├── product/       # Product, category
+│   ├── cart/          # Shopping cart
+│   └── order/         # Orders
+├── infrastructure/    # Security config, filters
+├── model/            # JPA entities
+└── service/          # Shared services
 ```
 
-### Frontend Architecture (Component-based)
-
+Frontend:
 ```
-frontend/
-├── views/                  # Page Components (7 pages)
-├── components/             # Reusable Components (7 components)
-├── composables/            # Composition API Logic
-│   ├── management/         # Admin-specific composables
-│   └── *.js               # Feature composables
-├── service/                # API Service Layer
-├── stores/                 # Pinia State Management
-├── router/                 # Vue Router Configuration
-└── utils/                  # Utilities & Helpers
+frontend/src/
+├── views/            # Pages
+├── components/       # Reusable components
+├── composables/      # Business logic
+├── router/           # Routing
+└── stores/           # State management
 ```
 
----
+## Setup
 
-## Cài Đặt
+**Prerequisites:**
+- Java 21+
+- Node.js 18+
+- MySQL 8.0+
+- Maven
 
-- **Java 21** or higher
-- **Node.js 18+** and **npm/pnpm**
-- **MySQL 8.0+**
-- **Maven 3.8+**
-
-### 1️⃣ Clone Repository
-
-```bash
-git clone https://github.com/yourusername/java6-assignment.git
-cd java6-assignment
-```
-
-### 2️⃣ Database Setup
-
-```bash
-# Tạo database
-mysql -u root -p
+**1. Database**
+```sql
 CREATE DATABASE assignent_nitimo_ecommerce;
-exit;
-
-# Import schema (nếu có)
-mysql -u root -p assignent_nitimo_ecommerce < database/schema.sql
 ```
 
-### 3️⃣ Backend Setup
-
+**2. Backend**
 ```bash
 cd backend
-
-# Cấu hình database trong application.properties
-# src/main/resources/application.properties
-# Sửa username/password theo MySQL của bạn
-
-# Build và chạy
-mvn clean install
+# Sửa application.properties với MySQL credentials
 mvn spring-boot:run
-
-# Hoặc
-./mvnw spring-boot:run
 ```
+Server chạy ở `http://localhost:8080`
 
-Backend sẽ chạy tại: `http://localhost:8080`
-
-### 4️⃣ Frontend Setup
-
+**3. Frontend**
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-# hoặc
-pnpm install
-
-# Run development server
 npm run dev
-# hoặc
-pnpm dev
 ```
+App chạy ở `http://localhost:5173`
 
-Frontend sẽ chạy tại: `http://localhost:5173`
+## Authentication
 
----
+JWT-based authentication với HttpOnly cookies:
+1. User login → Backend verify → Generate JWT
+2. JWT được lưu trong HttpOnly cookie
+3. Frontend gửi request với cookie
+4. Backend validate JWT qua filter
+5. Authorization dựa trên role (USER/ADMIN)
 
-##rmaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant Database
+## API
 
-    User->>Frontend: Login (username, password)
-    Frontend->>Backend: POST /api/auth/login
-    Backend->>Database: Verify credentials
-    Database-->>Backend: User data
-    Backend-->>Frontend: JWT Token (HttpOnly Cookie)
-    Frontend->>Frontend: Store role in sessionStorage
-    User->>Frontend: Access protected route
-    Frontend->>Backend: Request with Cookie
-    Backend->>Backend: Validate JWT
-    Backend-->>Frontend: Protected resource
-```
+**Public endpoints:**
+- `POST /api/auth/login` - Đăng nhập
+- `POST /api/auth/logup` - Đăng ký
+- `GET /api/product/all` - Danh sách sản phẩm (paginated)
+- `GET /api/product/{code}` - Chi tiết sản phẩm
+- `GET /api/category` - Danh mục
 
----
+**Authenticated:**
+- `GET /api/cart-item/slide-bar` - Lấy giỏ hàng
+- `POST /api/cart-item/add` - Thêm vào giỏ
+- `POST /api/order/create-order` - Tạo đơn hàng
+- `GET /api/order/fetch-order-history` - Lịch sử đơn
 
-## 📡 API Documentation
+**Admin only:**
+- `/api/admin/**` - Quản lý sản phẩm, đơn hàng, users
 
-## API Endpointsescription | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/login` | Đăng nhập | ❌ |
-| POST | `/api/auth/logup` | Đăng ký | ❌ |
-| GET | `/api/auth/check-auth-status` | Kiểm tra trạng thái auth | ✅ |
-| GET | `/api/auth/get_my_profile` | Lấy thông tin profile | ✅ |
-| PUT | `/api/auth/update-profile` | Cập nhật profile | ✅ |
-| POST | `/api/auth/change-password` | Đổi mật khẩu | ✅ |
+## Database
 
-### Products
+**Main tables:**
+- `users` - User accounts
+- `products` - Sản phẩm
+- `product_variants` - Variants (color, size)
+- `product_images` - Ảnh sản phẩm
+- `categories` - Danh mục
+- `carts`, `cart_items` - Giỏ hàng
+- `orders`, `order_details` - Đơn hàng
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/product/all?page=0&size=10` | Danh sách sản phẩm | ❌ |
-| GET | `/api/product/{code}` | Chi tiết sản phẩm | ❌ |
-| GET | `/api/category` | Danh sách danh mục | ❌ |
-| POST | `/api/admin/product` | Tạo sản phẩm | 👤 Admin |
-| PUT | `/api/admin/product/{code}` | Cập nhật sản phẩm | 👤 Admin |
-| DELETE | `/api/admin/product/{code}` | Xóa sản phẩm | 👤 Admin |
-
-### Cart
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/cart-item/slide-bar` | Lấy giỏ hàng | ✅ |
-| POST | `/api/cart-item/add` | Thêm vào giỏ | ✅ |
-| PUT | `/api/cart-item/update` | Cập nhật số lượng | ✅ |
-| DELETE | `/api/cart-item/remove` | Xóa item | ✅ |
-| DELETE | `/api/cart-item/clean` | Xóa tất cả | ✅ |
-| GET | `/api/cart-item/is-empty` | Kiểm tra giỏ rỗng | ✅ |
-
-### Orders
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/order/create-order` | Tạo đơn hàng | ✅ |
-| GET | `/api/order/fetch-order-history` | Lịch sử đơn hàng | ✅ |
-| GET | `/api/order-detail/{orderCode}` | Chi tiết đơn hàng | ✅ |
-| PUT | `/api/admin/order/{orderCode}/status` | Cập nhật trạng thái | 👤 Admin |
-
----
-
-## 🗄️ Database Schema
-
-##
--- Users (Người dùng)
-users (username PK, password, email, fullName, phone, address, role, status)
-
--- Products (Sản phẩm)
-products (productCode PK, name, description, price, discount, categoryCode FK)
-product_variants (id PK, productCode FK, color, sizeCode FK, stock)
-product_images (id PK, productCode FK, imageUrl, isPrimary)
-categories (categoryCode PK, categoryName)
-sizes (sizeCode PK, sizeName)
-
--- Shopping (Giỏ hàng & Đơn hàng)
-carts (id PK, username FK)
-cart_items (id PK, cartId FK, variantId FK, quantity)
-orders (orderCode PK, username FK, orderDate, status, totalAmount, shippingAddress)
-order_details (id PK, orderCode FK, productCode FK, variantId FK, quantity, price)
-```
-
-### Relationships
-
-- User `1-N` Cart, Order
-- Product `N-1` Category
-- Product `1-N` ProductVariant, ProductImage
-- Order `1-N` OrderDetail
-- ProductVariant `N-1` Size
-
----
-
-## 🎨 Screenshots
-
-##lication.properties**
+Config trong `application.properties`:
 ```properties
-# Database
 spring.datasource.url=jdbc:mysql://localhost:3307/assignent_nitimo_ecommerce
-spring.datasource.username=root
-spring.datasource.password=your_password
-
-# JPA
 spring.jpa.hibernate.ddl-auto=none
-spring.jpa.show-sql=true
-
-# File Upload
-spring.servlet.multipart.max-file-size=10MB
-spring.servlet.multipart.max-request-size=100MB
 ```
 
-### Frontend Configuration
+## Một số implementation notes
 
-**vite.config.js**
-```javascript
-export default {
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': 'http://localhost:8080'
-    }
-  }
-}
-```
+**Backend:**
+- Feature-based package structure thay vì layered
+- JWT filter để validate token từ cookie
+- Named Entity Graph để tránh N+1 queries
+- DTO pattern để tách request/response khỏi entities
+- BCrypt cho password hashing
 
----
-
-## 🔒 Security Features
-
-- ✅ **JWT Authentication** với HttpOnly Cookies
-- ✅ **BCrypt Password Hashing**
-- ✅ **Role-Based Access Control** (RBAC)
-- ✅ **CORS Configuration** cho cross-origin requests
-- ✅ **CSRF Protection** (disabled cho REST API)
-- ✅ **SQL Injection Prevention** (JPA PreparedStatements)
-- ✅ **XSS Protection** (HttpOnly cookies)
-- ✅ **Route Guards** (Frontend protection)
-
----
-
-## 🚀 Performance Optimizations
-
-- ⚡ **Named Entity Graph** - Giải quyết N+1 query problem
-- ⚡ **Lazy Loading** - Relationships được load on-demand
-- ⚡ **Pagination** - Giảm tải dữ liệu (10 items/page)
-- ⚡ **Debounce** - Optimize search input
-- ⚡ **Singleton State** - Shared cart state across components
-- ⚡ **Vite HMR** - Fast refresh trong development
-
----
-
-## Security Implementation
-
-- JWT Authentication với HttpOnly Cookies
-- BCrypt password hashing
-- Role-based access control (RBAC)
-- CORS configuration
-- CSRF protection (disabled cho REST API)
-- SQL injection prevention (JPA PreparedStatements)
-- XSS protection
-- Frontend route guards
-
-## Performance Optimizations
-
-- Named Entity Graph để giải quyết N+1 query problem
-- Lazy loading cho relationships
-- Pagination (10 items per page)
-- Debounce cho search input
-- Singleton state pattern cho cart
-- Vite HMR trong development
-
-## Design Patterns & Best Practices
-
-**Backend**
-- Repository Pattern
-- DTO Pattern
-- Service Layer architecture
-- Feature-based package structure
-- Jakarta Bean Validation
-- Centralized exception handling
-
-**Frontend**
+**Frontend:**
 - Composition API (Vue 3)
-- Singleton pattern cho shared state
-- Composable functions
-- Route guards
-- API service layer
+- Pinia cho state management
+- Singleton pattern cho cart state (shared across components)
+- Route guards để protect authenticated routes
+- Axios interceptor với credentials
 
-##mmit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+## Build
 
----
+**Backend:**
+```bash
+mvn clean package
+java -jar target/java6-0.0.1-SNAPSHOT.jar
+```
 
-## 📄 License
-
-Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE` để biết thêm chi tiết.
-
----
-
-## 👨‍💻 Author
-
-**Poly Student**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+**Frontend:**
+```bash
+npm run build
+```
 
 ---
 
-## 🙏 Acknowledgments
-
-- Spring Boot Documentation
-- Vue.js Community
-- Bootstrap Team
-- FPT Polytechnic - Java 6 Course
-
----
-
-<div align="center">
-
-### ⭐ Nếu dự án hữu ích, hãy cho một ngôi sao nhé! ⭐
-
-**Made with ❤️ by Poly Student**
-
-</div>
-## Contributing
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/NewFeature`)
-3. Commit your changes (`git commit -m 'Add NewFeature'`)
-4. Push to the branch (`git push origin feature/NewFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contact
-
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-
-## Acknowledgments
-
-Dự án được phát triển như một phần của môn học Java 6 tại FPT Polytechnic.
+Assignment project cho môn Java 6 - FPT Polytechnic
