@@ -1,4 +1,4 @@
-# Nitimo E-Commerce Platform
+# Lawan E-Commerce Platform
 
 Full-stack e-commerce application built with Spring Boot and Vue.js
 
